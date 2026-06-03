@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NJ Games Login</title>
+<style>
+body{
+  background:#111;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+  padding-top:120px;
+}
+input,button{
+  padding:12px;
+  font-size:18px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎮 NJ Games</h1>
+<h2>Enter Access Code</h2>
+
+<input type="password" id="code">
+<button onclick="login()">Enter</button>
+
+<script>
+function login(){
+  let code = document.getElementById("code").value;
+
+  if(code === "NJ2026"){
+    window.location.href = "https://sites.google.com/ddsbstudent.ca/nj-games/home";
+  } else {
+    alert("Wrong code!");
+  }
+}
+</script>
+
+</body>
+</html>
