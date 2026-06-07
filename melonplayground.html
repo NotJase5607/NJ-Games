@@ -1,0 +1,117 @@
+<!-- Ultimate Game Stash file-->
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <title>Unity Game</title>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        #unity-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+            background: #231F20;
+            display: block;
+        }
+
+        #loading-cover {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #unity-progress-bar-empty {
+            width: 40%;
+            height: 24px;
+            border: 1px solid white;
+            padding: 2px;
+        }
+
+        #unity-progress-bar-full {
+            width: 0%;
+            height: 100%;
+            background: white;
+        }
+
+        body {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="unity-container">
+        <canvas id="unity-canvas"></canvas>
+    </div>
+
+    <div id="loading-cover">
+        <div id="unity-progress-bar-empty">
+            <div id="unity-progress-bar-full"></div>
+        </div>
+    </div>
+
+    <script>
+        const buildUrl = "https://cdn.jsdelivr.net/gh/fedosyamamontova/httplibrary@2ae10ea47aa6c9a501f57429d2524bc7d983c8cc/main";
+
+        const loaderUrl = buildUrl + "/Builds.loader.js";
+
+        const config = {
+            dataUrl: buildUrl + "/Builds.data.unityweb",
+            frameworkUrl: buildUrl + "/Builds.framework.js.unityweb",
+            codeUrl: buildUrl + "/Builds.wasm.unityweb",
+            streamingAssetsUrl: "/StreamingAssets"
+        };
+
+        const canvas = document.querySelector("#unity-canvas");
+        const loadingCover = document.querySelector("#loading-cover");
+        const progressBarFull = document.querySelector("#unity-progress-bar-full");
+
+        const script = document.createElement("script");
+        script.src = loaderUrl;
+
+        script.onload = () => {
+            createUnityInstance(
+                canvas,
+                config,
+                (progress) => {
+                    progressBarFull.style.width = (progress * 100) + "%";
+                }
+            ).then((unityInstance) => {
+                loadingCover.style.display = "none";
+                window.gameInstance = unityInstance;
+            }).catch((message) => {
+                alert(message);
+            });
+        };
+
+        document.body.appendChild(script);
+    </script>
+
+</body>
+</html>
