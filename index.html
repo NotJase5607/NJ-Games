@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Games</title>
+<style>
+body{
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+#games{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    padding:20px;
+}
+
+.game{
+    background:#222;
+    width:250px;
+    padding:20px;
+    border-radius:12px;
+}
+
+button{
+    padding:10px 20px;
+    font-size:16px;
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>🎮 My Games</h1>
+
+<div id="games"></div>
+
+<script>
+const USERNAME = "NotJase5607";
+const REPO = "NJ-Games";
+
+// Fixed cloaking method using direct DOM injection
+function launchGame(fileName, displayName) {
+    const gameUrl = `https://${USERNAME}.github.io/${REPO}/${fileName}`;
+    
+    // Open a truly empty window without arguments to force about:blank
+    const newWindow = window.open();
+
+    if (newWindow) {
+        // Set the document title
+        newWindow.document.title = displayName;
+
+        // Apply a clean, margin-free layout to the blank window body
+        const body = newWindow.document.body;
+        body.style.margin = "0";
+        body.style.padding = "0";
+        body.style.height = "100vh";
+        body.style.width = "100vw";
+        body.style.overflow = "hidden";
+        body.style.backgroundColor = "#000";
+
+        // Create the full-screen iframe dynamically
+        const iframe = newWindow.document.createElement('iframe');
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.style.margin = "0";
+        iframe.style.padding = "0";
+        iframe.src = gameUrl;
+
+        // Append the iframe into the blank document body
+        body.appendChild(iframe);
+    } else {
+        alert("Popup blocked! Please allow popups to open this game.");
+    }
+}
+
+fetch(`https://github.com{USERNAME}/${REPO}/contents`)
+.then(r => r.json())
+.then(files => {
+    const games = document.getElementById("games");
+
+    files.forEach(file => {
+        if (
+            file.name.endsWith(".html") &&
+            file.name.toLowerCase() !== "index.html"
+        ) {
+            const card = document.createElement("div");
+            card.className = "game";
+
+            const gameName = file.name
+                .replace(".html","")
+                .replace(/[-_]/g," ");
+
+            card.innerHTML = `
+                <h2>${gameName}</h2>
+                <button onclick="launchGame('${file.name}', '${gameName}')">
+                    Play
+                </button>
+            `;
+
+            games.appendChild(card);
+        }
+    });
+});
+</script>
+
+</body>
+</html>
