@@ -418,6 +418,78 @@
                     </div>
                     <button class="action-btn" id="up-label" onclick="buyUpgrade('label')">$180,000,000</button>
                 </div>
+                
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">FL Studio License</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$32,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-fl" onclick="buyUpgrade('fl')">$1,200,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Mastering Chain</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$210,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-mastering" onclick="buyUpgrade('mastering')">$8,500,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">VIP Club Residency</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1,500,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-residency" onclick="buyUpgrade('residency')">$60,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Mainstage Festival Slot</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$9,800,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-festival" onclick="buyUpgrade('festival')">$450,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Global Phonk Tour</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$64,000,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-tour" onclick="buyUpgrade('tour')">$3,200,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Symphonic Phonk Orchestra</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$420,000,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-orchestra" onclick="buyUpgrade('orchestra')">$25,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Phonk Satellite Broadcast</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$2,800,000,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-satellite" onclick="buyUpgrade('satellite')">$180,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Subwoofer Megastructure</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$18,500,000,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-megastructure" onclick="buyUpgrade('megastructure')">$1,400,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Quantum Cowbell Matrix</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$125,000,000,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-matrix" onclick="buyUpgrade('matrix')">$10,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">The Eternal Bass Dimension</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$850,000,000,000,000 per tap</div>
+                    </div>
+                    <button class="action-btn" id="up-dimension" onclick="buyUpgrade('dimension')">$75,000,000,000,000,000</button>
+                </div>
+
                 <div class="item-row" style="margin-top: 10px; border-color: gold; position: sticky; bottom: 0; z-index: 5; background-color: rgba(25, 20, 35, 0.98);">
                     <div class="item-info">
                         <div class="item-name" style="color: gold;">Perform Rebirth</div>
@@ -480,96 +552,21 @@
         let rebirths = 0;
 
         const phonksDb = {
-            yara: {
-                name: "Yara Yara Phonk",
-                videoId: "KK5uGdYGo80", 
-                img: "https://i.scdn.co/image/ab67616d00001e0297e6dfb873d548b382e6cb40",
-                owned: true
-            },
-            tikitiki: {
-                name: "Tiki Tiki Phonk",
-                videoId: "5YmRKZ3haIA", 
-                img: "https://i1.sndcdn.com/artworks-3014lXZ79HIKw3DM-XBQqjw-t1080x1080.jpg",
-                owned: false
-            },
-            alquimia: {
-                name: "Montagem Alquimia",
-                videoId: "w9diSR548YQ",
-                img: "https://resources.tidal.com/images/4f9a1074/ed6f/4849/89e9/33ef24328ca8/1280x1280.jpg",
-                owned: false
-            },
-            badparenting: {
-                name: "Bad Parenting Funk",
-                videoId: "dOW_VkPIzjk",
-                img: "https://cdn-images.dzcdn.net/images/cover/2ed4830e6dace159ffcbae7335f9a1e7/0x1900-000000-80-0-0.jpg",
-                owned: false
-            },
-            notmyproblem: {
-                name: "Not My Problem Funk",
-                videoId: "2I2HyKse_K0",
-                img: "https://i.scdn.co/image/ab67616d0000b273ac7a0ff00e09ce00b77146c9",
-                owned: false
-            },
-            funkdobounce: {
-                name: "Funk Do Bounce",
-                videoId: "kWW-jZ6H_LE",
-                img: "https://i.scdn.co/image/ab67616d0000b2737e37f6e5b613003d4c185672",
-                owned: false
-            },
-            passobemsolto: {
-                name: "Passo Bem Solto",
-                videoId: "Wp5tq856U5U",
-                img: "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Passo_Bem_Solto_-_Atlxs.jpg/250px-Passo_Bem_Solto_-_Atlxs.jpg",
-                owned: false
-            },
-            matadora: {
-                name: "Matadora",
-                videoId: "YIYBhDeQfT0",
-                img: "https://i.scdn.co/image/ab67616d0000b2738630ce04dcdf0c89f218b7d8",
-                owned: false
-            },
-            takaladentro: {
-                name: "Taka La Dentro",
-                videoId: "SitxbBnisHQ",
-                img: "https://i.scdn.co/image/ab67616d0000b273d877bd0bd236a8dae39ad73c",
-                owned: false
-            },
-            nobatidao: {
-                name: "No Batidão",
-                videoId: "orOgilmiL_4",
-                img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9IafSjUQtj_t4nq5Ik4CWGfyFtums5bJuxw&s",
-                owned: false
-            },
-            losvoltaje: {
-                name: "Los Voltaje",
-                videoId: "lgnjW51Lal8",
-                img: "https://m.media-amazon.com/images/I/61CVTgI-JBL._UXNaN_FMjpg_QL85_.jpg",
-                owned: false
-            },
-            acelerada: {
-                name: "Acelerada",
-                videoId: "tS-mLwExJg0",
-                img: "https://i.scdn.co/image/ab67616d00001e0225690b825d3912a4fd6f7ba9",
-                owned: false
-            },
-            nervyfunk: {
-                name: "Nervy Funk",
-                videoId: "0IzHYrVbvEw",
-                img: "https://i.scdn.co/image/ab67616d00001e02fd9ab575a2d75303c5e5456e",
-                owned: false
-            },
-            vemvem: {
-                name: "Vem Vem",
-                videoId: "7YzS9QQP1Dk",
-                img: "https://i1.sndcdn.com/artworks-cFo934UBQnGR-0-t500x500.jpg",
-                owned: false
-            },
-            mashaultrafunk: {
-                name: "Masha Ultrafunk",
-                videoId: "GiF_jrmFYac",
-                img: "https://i1.sndcdn.com/artworks-RgUythmSVOkqZafF-5tRdoA-t500x500.jpg",
-                owned: false
-            }
+            yara: { name: "Yara Yara Phonk", videoId: "KK5uGdYGo80", img: "https://i.scdn.co/image/ab67616d00001e0297e6dfb873d548b382e6cb40", owned: true },
+            tikitiki: { name: "Tiki Tiki Phonk", videoId: "5YmRKZ3haIA", img: "https://i1.sndcdn.com/artworks-3014lXZ79HIKw3DM-XBQqjw-t1080x1080.jpg", owned: false },
+            alquimia: { name: "Montagem Alquimia", videoId: "w9diSR548YQ", img: "https://resources.tidal.com/images/4f9a1074/ed6f/4849/89e9/33ef24328ca8/1280x1280.jpg", owned: false },
+            badparenting: { name: "Bad Parenting Funk", videoId: "dOW_VkPIzjk", img: "https://cdn-images.dzcdn.net/images/cover/2ed4830e6dace159ffcbae7335f9a1e7/0x1900-000000-80-0-0.jpg", owned: false },
+            notmyproblem: { name: "Not My Problem Funk", videoId: "2I2HyKse_K0", img: "https://i.scdn.co/image/ab67616d0000b273ac7a0ff00e09ce00b77146c9", owned: false },
+            funkdobounce: { name: "Funk Do Bounce", videoId: "kWW-jZ6H_LE", img: "https://i.scdn.co/image/ab67616d0000b2737e37f6e5b613003d4c185672", owned: false },
+            passobemsolto: { name: "Passo Bem Solto", videoId: "Wp5tq856U5U", img: "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Passo_Bem_Solto_-_Atlxs.jpg/250px-Passo_Bem_Solto_-_Atlxs.jpg", owned: false },
+            matadora: { name: "Matadora", videoId: "YIYBhDeQfT0", img: "https://i.scdn.co/image/ab67616d0000b2738630ce04dcdf0c89f218b7d8", owned: false },
+            takaladentro: { name: "Taka La Dentro", videoId: "SitxbBnisHQ", img: "https://i.scdn.co/image/ab67616d0000b273d877bd0bd236a8dae39ad73c", owned: false },
+            nobatidao: { name: "No Batidão", videoId: "orOgilmiL_4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9IafSjUQtj_t4nq5Ik4CWGfyFtums5bJuxw&s", owned: false },
+            losvoltaje: { name: "Los Voltaje", videoId: "lgnjW51Lal8", img: "https://m.media-amazon.com/images/I/61CVTgI-JBL._UXNaN_FMjpg_QL85_.jpg", owned: false },
+            acelerada: { name: "Acelerada", videoId: "tS-mLwExJg0", img: "https://i.scdn.co/image/ab67616d00001e0225690b825d3912a4fd6f7ba9", owned: false },
+            nervyfunk: { name: "Nervy Funk", videoId: "0IzHYrVbvEw", img: "https://i.scdn.co/image/ab67616d00001e02fd9ab575a2d75303c5e5456e", owned: false },
+            vemvem: { name: "Vem Vem", videoId: "7YzS9QQP1Dk", img: "https://i1.sndcdn.com/artworks-cFo934UBQnGR-0-t500x500.jpg", owned: false },
+            mashaultrafunk: { name: "Masha Ultrafunk", videoId: "GiF_jrmFYac", img: "https://i1.sndcdn.com/artworks-RgUythmSVOkqZafF-5tRdoA-t500x500.jpg", owned: false }
         };
 
         let activeSkin = 'yara';
@@ -577,8 +574,12 @@
         const costs = { 
             bass: 50, eq: 400, xlr: 2500, monitors: 15000, 
             sub: 85000, mixer: 450000, cowbell: 3200000, 
-            vinyl: 25000000, label: 180000000, rebirth: 10000,
-            luckyBlock: 25000, betaBlock: 50000, gammaBlock: 75000
+            vinyl: 25000000, label: 180000000,
+            fl: 1200000000, mastering: 8500000000, residency: 60000000000,
+            festival: 450000000000, tour: 3200000000000, orchestra: 25000000000000,
+            satellite: 180000000000000, megastructure: 1400000000000000, matrix: 10000000000000000,
+            dimension: 75000000000000000,
+            rebirth: 10000, luckyBlock: 25000, betaBlock: 50000, gammaBlock: 75000
         };
 
         const cashDisplay = document.getElementById('cash-display');
@@ -621,56 +622,47 @@
                 else if (type === 'cowbell') { multiplier += 90000; costs.cowbell = Math.floor(costs.cowbell * 1.9); }
                 else if (type === 'vinyl') { multiplier += 650000; costs.vinyl = Math.floor(costs.vinyl * 1.95); }
                 else if (type === 'label') { multiplier += 4500000; costs.label = Math.floor(costs.label * 2.0); }
+                else if (type === 'fl') { multiplier += 32000000; costs.fl = Math.floor(costs.fl * 2.1); }
+                else if (type === 'mastering') { multiplier += 210000000; costs.mastering = Math.floor(costs.mastering * 2.2); }
+                else if (type === 'residency') { multiplier += 1500000000; costs.residency = Math.floor(costs.residency * 2.3); }
+                else if (type === 'festival') { multiplier += 9800000000; costs.festival = Math.floor(costs.festival * 2.4); }
+                else if (type === 'tour') { multiplier += 64000000000; costs.tour = Math.floor(costs.tour * 2.5); }
+                else if (type === 'orchestra') { multiplier += 420000000000; costs.orchestra = Math.floor(costs.orchestra * 2.6); }
+                else if (type === 'satellite') { multiplier += 2800000000000; costs.satellite = Math.floor(costs.satellite * 2.7); }
+                else if (type === 'megastructure') { multiplier += 18500000000000; costs.megastructure = Math.floor(costs.megastructure * 2.8); }
+                else if (type === 'matrix') { multiplier += 125000000000000; costs.matrix = Math.floor(costs.matrix * 2.9); }
+                else if (type === 'dimension') { multiplier += 850000000000000; costs.dimension = Math.floor(costs.dimension * 3.0); }
                 updateUI();
             }
         }
 
         function buyLuckyBlock(boxType) {
             let cost = boxType === 'alpha' ? costs.luckyBlock : (boxType === 'beta' ? costs.betaBlock : costs.gammaBlock);
-            
             if (cash >= cost) {
                 cash -= cost;
                 let rolled = 'yara';
 
                 if (boxType === 'alpha') {
                     const rand = Math.random() * 100;
-                    if (rand < 54) {
-                        rolled = 'yara';
-                    } else if (rand < 84) {
-                        rolled = 'tikitiki';
-                    } else if (rand < 94) {
-                        rolled = 'alquimia';
-                    } else if (rand < 99) {
-                        rolled = 'badparenting';
-                    } else {
-                        rolled = 'notmyproblem';
-                    }
+                    if (rand < 54) rolled = 'yara';
+                    else if (rand < 84) rolled = 'tikitiki';
+                    else if (rand < 94) rolled = 'alquimia';
+                    else if (rand < 99) rolled = 'badparenting';
+                    else rolled = 'notmyproblem';
                 } else if (boxType === 'beta') {
                     const rand = Math.random() * 100;
-                    if (rand < 54) {
-                        rolled = 'funkdobounce';
-                    } else if (rand < 84) {
-                        rolled = 'passobemsolto';
-                    } else if (rand < 94) {
-                        rolled = 'matadora';
-                    } else if (rand < 99) {
-                        rolled = 'takaladentro';
-                    } else {
-                        rolled = 'nobatidao';
-                    }
+                    if (rand < 54) rolled = 'funkdobounce';
+                    else if (rand < 84) rolled = 'passobemsolto';
+                    else if (rand < 94) rolled = 'matadora';
+                    else if (rand < 99) rolled = 'takaladentro';
+                    else rolled = 'nobatidao';
                 } else if (boxType === 'gamma') {
                     const rand = Math.random() * 100;
-                    if (rand < 54) {
-                        rolled = 'losvoltaje';
-                    } else if (rand < 84) {
-                        rolled = 'acelerada';
-                    } else if (rand < 94) {
-                        rolled = 'nervyfunk';
-                    } else if (rand < 99) {
-                        rolled = 'vemvem';
-                    } else {
-                        rolled = 'mashaultrafunk';
-                    }
+                    if (rand < 54) rolled = 'losvoltaje';
+                    else if (rand < 84) rolled = 'acelerada';
+                    else if (rand < 94) rolled = 'nervyfunk';
+                    else if (rand < 99) rolled = 'vemvem';
+                    else rolled = 'mashaultrafunk';
                 }
                 
                 const isNew = !phonksDb[rolled].owned;
@@ -691,11 +683,9 @@
         function renderInventory() {
             const container = document.getElementById('phonk-inventory-list');
             container.innerHTML = '';
-
             for (const [id, item] of Object.entries(phonksDb)) {
                 const card = document.createElement('div');
                 card.className = `phonk-card ${!item.owned ? 'locked' : ''} ${activeSkin === id ? 'equipped' : ''}`;
-                
                 card.innerHTML = `
                     <img src="${item.img}" alt="${item.name}">
                     <div style="font-size:0.85rem; font-weight:bold; margin-top:4px;">${item.name}</div>
@@ -727,6 +717,10 @@
                 costs.bass = 50; costs.eq = 400; costs.xlr = 2500;
                 costs.monitors = 15000; costs.sub = 85000; costs.mixer = 450000;
                 costs.cowbell = 3200000; costs.vinyl = 25000000; costs.label = 180000000;
+                costs.fl = 1200000000; costs.mastering = 8500000000; costs.residency = 60000000000;
+                costs.festival = 450000000000; costs.tour = 3200000000000; costs.orchestra = 25000000000000;
+                costs.satellite = 180000000000000; costs.megastructure = 1400000000000000;
+                costs.matrix = 10000000000000000; costs.dimension = 75000000000000000;
                 updateUI();
             }
         }
@@ -735,30 +729,18 @@
             cashDisplay.innerText = "$" + cash.toLocaleString();
             rebirthDisplay.innerText = "Rebirths: " + rebirths.toLocaleString();
 
-            document.getElementById('up-bass').innerText = `$${costs.bass.toLocaleString()}`;
-            document.getElementById('up-eq').innerText = `$${costs.eq.toLocaleString()}`;
-            document.getElementById('up-xlr').innerText = `$${costs.xlr.toLocaleString()}`;
-            document.getElementById('up-monitors').innerText = `$${costs.monitors.toLocaleString()}`;
-            document.getElementById('up-sub').innerText = `$${costs.sub.toLocaleString()}`;
-            document.getElementById('up-mixer').innerText = `$${costs.mixer.toLocaleString()}`;
-            document.getElementById('up-cowbell').innerText = `$${costs.cowbell.toLocaleString()}`;
-            document.getElementById('up-vinyl').innerText = `$${costs.vinyl.toLocaleString()}`;
-            document.getElementById('up-label').innerText = `$${costs.label.toLocaleString()}`;
-            document.getElementById('up-rebirth').innerText = `$${costs.rebirth.toLocaleString()}`;
+            const upgradeIds = ['bass', 'eq', 'xlr', 'monitors', 'sub', 'mixer', 'cowbell', 'vinyl', 'label', 'fl', 'mastering', 'residency', 'festival', 'tour', 'orchestra', 'satellite', 'megastructure', 'matrix', 'dimension', 'rebirth'];
+            upgradeIds.forEach(id => {
+                const btn = document.getElementById(`up-${id}`);
+                if (btn) {
+                    btn.innerText = `$${costs[id].toLocaleString()}`;
+                    btn.disabled = cash < costs[id];
+                }
+            });
+
             document.getElementById('buy-block-btn').innerText = `$${costs.luckyBlock.toLocaleString()}`;
             document.getElementById('buy-beta-btn').innerText = `$${costs.betaBlock.toLocaleString()}`;
             document.getElementById('buy-gamma-btn').innerText = `$${costs.gammaBlock.toLocaleString()}`;
-
-            document.getElementById('up-bass').disabled = cash < costs.bass;
-            document.getElementById('up-eq').disabled = cash < costs.eq;
-            document.getElementById('up-xlr').disabled = cash < costs.xlr;
-            document.getElementById('up-monitors').disabled = cash < costs.monitors;
-            document.getElementById('up-sub').disabled = cash < costs.sub;
-            document.getElementById('up-mixer').disabled = cash < costs.mixer;
-            document.getElementById('up-cowbell').disabled = cash < costs.cowbell;
-            document.getElementById('up-vinyl').disabled = cash < costs.vinyl;
-            document.getElementById('up-label').disabled = cash < costs.label;
-            document.getElementById('up-rebirth').disabled = cash < costs.rebirth;
             document.getElementById('buy-block-btn').disabled = cash < costs.luckyBlock;
             document.getElementById('buy-beta-btn').disabled = cash < costs.betaBlock;
             document.getElementById('buy-gamma-btn').disabled = cash < costs.gammaBlock;
