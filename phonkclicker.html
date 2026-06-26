@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phonk Clicker</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --panel-bg: #1f2833;
+            --accent-purple: #8a2be2;
+            --accent-green: #00ff7f;
+            --accent-blue: #00f0ff;
+            --accent-magenta: #ff00ff;
+            --accent-gold: #ffaa00;
+            --accent-red: #ff3333;
+            --accent-cyan: #00ffcc;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Username Login Overlay Screen */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .login-box {
+            background: #11121a;
+            border: 3px solid var(--accent-purple);
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.4);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .login-box p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid #333;
+            background: #000;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent-green);
+        }
+
+        /* Left Navigation Bar */
+        .navigation-bar {
+            width: 80px;
+            background-color: #0f0f19;
+            border-right: 3px solid #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            border: 2px solid var(--accent-purple);
+            background: #111;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            border-color: var(--accent-green);
+            background: var(--panel-bg);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .nav-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Main Game Layout */
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle, #1a1a2e 0%, #0b0c10 100%);
+            gap: 20px;
+        }
+
+        .user-tag {
+            font-size: 0.9rem;
+            color: #aaa;
+            background: rgba(255,255,255,0.05);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #333;
+        }
+
+        .score-display {
+            font-size: 3.8rem;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(90deg, #ff007f, #7f00ff, #00f0ff, #00ff7f, #fff000);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow-glow 8s ease infinite;
+        }
+
+        .click-target {
+            width: 320px;
+            height: 320px;
+            cursor: pointer;
+            transition: transform 0.05s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 4px solid var(--accent-purple);
+            box-shadow: 0 0 25px var(--accent-purple);
+        }
+
+        .click-target img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .click-target:active {
+            transform: scale(0.94);
+            border-color: var(--accent-green);
+            box-shadow: 0 0 35px var(--accent-green);
+        }
+
+        .rebirth-display-center {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--accent-green);
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.6rem;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 127, 0.2);
+            letter-spacing: 1px;
+        }
+
+        /* Video Track Deck Container */
+        .audio-deck-panel {
+            width: 280px;
+            height: 60px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .audio-deck-panel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Sidebar Containers */
+        .sidebar {
+            width: 460px;
+            background-color: rgba(15, 15, 25, 0.95);
+            border-left: 3px solid #222;
+            display: none;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .sidebar.active {
+            display: flex;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff007f, var(--accent-purple));
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+        }
+
+        .scrollable-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 5px;
+        }
+
+        .scrollable-list::-webkit-scrollbar { width: 6px; }
+        .scrollable-list::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 4px; }
+
+        .item-row {
+            background-color: var(--panel-bg);
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            min-height: 75px;
+            gap: 15px;
+        }
+
+        .item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .item-name { font-weight: bold; font-size: 0.95rem; }
+
+        .action-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 140px;
+            text-align: center;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .action-btn:disabled { background-color: #444; color: #888; cursor: not-allowed; }
+
+        .phonk-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .phonk-card {
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .phonk-card.locked img {
+            filter: brightness(0.15) grayscale(1);
+        }
+
+        .phonk-card img {
+            width: 140px;
+            height: 140px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid transparent;
+        }
+
+        .phonk-card.equipped {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(0,255,127,0.3);
+        }
+
+        .phonk-card.equipped img { border-color: var(--accent-green); }
+
+        .lock-overlay {
+            position: absolute;
+            background: rgba(0,0,0,0.85);
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            top: 65px;
+            font-weight: bold;
+            border: 1px solid #ff4444;
+        }
+
+        /* Popups */
+        .floating-text {
+            position: absolute;
+            color: var(--accent-green);
+            font-weight: 900;
+            font-size: 1.8rem;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+            text-shadow: 0 0 6px #000;
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-70px); }
+        }
+
+        @keyframes rainbow-glow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Drop Celebration Modal */
+        .roll-modal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            background: #151525;
+            border: 3px solid var(--accent-gold);
+            box-shadow: 0 0 40px var(--accent-gold);
+            border-radius: 12px;
+            padding: 25px;
+            z-index: 100;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .roll-modal.show { display: flex; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        .roll-modal img { width: 140px; height: 140px; border-radius: 8px; border: 2px solid white; }
+      .notif-banner { 
+    position: fixed; 
+    top: -100px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 90%; 
+    max-width: 350px; 
+    background: #e67e22; 
+    color: white; 
+    padding: 14px 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+    font-weight: bold; 
+    text-align: center; 
+    z-index: 999999; 
+    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    font-size: 0.95em; 
+    cursor: pointer;
+}
+.notif-banner.show { top: 20px; }
+.notif-banner.chat-notif { background: #3498db; }
+    </style>
+</head>
+<body>
+  
+  <div id="notification-alert" class="notif-banner" onclick="closeNotification()">Notification Message</div>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h1>Phonk Clicker</h1>
+            <p>Enter a unique username. Using the same username on this browser loads your save data!</p>
+            <input type="text" id="username-input" class="login-input" placeholder="Type Username..." maxlength="15">
+            <button class="action-btn" style="width: 100%; padding: 14px;" onclick="initSession()">Enter Studio</button>
+        </div>
+    </div>
+
+    <div class="navigation-bar">
+        <button class="nav-btn active" onclick="switchPanel('upgrades', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l7.5 13h-15L12 6zm-1 5v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+            Upgrades
+        </button>
+        <button class="nav-btn" onclick="switchPanel('blocks', this)">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm3 3h6v6H9V9z"/></svg>
+            Blocks
+        </button>
+<button class="nav-btn" onclick="switchPanel('phonks', this)">
+    <svg viewBox="0 0 24 24">
+        <path d="M12 2c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l2.79-2.79C10.09 18.64 11.03 19 12 19c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
+    </svg>
+    Phonks
+</button>
+
+<button class="nav-btn" onclick="switchPanel('trade', this)">
+    <svg viewBox="0 0 24 24">
+        <path d="M7 7h11v3l4-4-4-4v3H5v6h2V7zm10 10H6v-3l-4 4 4 4v-3h13v-6h-2v4z"/>
+    </svg>
+    Trade
+</button>
+    </div>
+
+    <div class="main-content">
+        <div class="game-area">
+            <div class="user-tag" id="display-user-tag">Producer: Guest</div>
+            <div class="score-display" id="cash-display">$1</div>
+
+            <div class="click-target" id="click-button">
+                <img id="main-clicker-img" src="https://i.scdn.co/image/ab67616d00001e0297e6dfb873d548b382e6cb40" alt="Phonk Cover Target">
+            </div>
+
+            <div class="rebirth-display-center" id="rebirth-display">Rebirths: 0</div>
+
+            <div class="audio-deck-panel" id="deck-wrapper"></div>
+        </div>
+
+        <div class="sidebar active" id="panel-upgrades">
+            <div class="sidebar-header">Upgrades & Boosts</div>
+            <div class="scrollable-list">
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Bass Boost</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-bass" onclick="buyUpgrade('bass')">$50</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Equalizer</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$12 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-eq" onclick="buyUpgrade('eq')">$400</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">XLR Cable</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$85 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-xlr" onclick="buyUpgrade('xlr')">$2,500</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Studio Monitors</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$450 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-monitors" onclick="buyUpgrade('monitors')">$15,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">808 Subwoofer</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$2,200 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-sub" onclick="buyUpgrade('sub')">$85,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Sound Mixer</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$15,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-mixer" onclick="buyUpgrade('mixer')">$450,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Cowbell Generator</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$90,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-cowbell" onclick="buyUpgrade('cowbell')">$3,200,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Vinyl Press</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$650,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-vinyl" onclick="buyUpgrade('vinyl')">$25,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Phonk Record Label</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$4,500,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-label" onclick="buyUpgrade('label')">$180,000,000</button>
+                </div>
+                
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">FL Studio License</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$32,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-fl" onclick="buyUpgrade('fl')">$1,200,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Mastering Chain</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$210,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-mastering" onclick="buyUpgrade('mastering')">$8,500,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">VIP Club Residency</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1,500,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-residency" onclick="buyUpgrade('residency')">$60,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Mainstage Festival Slot</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$9,800,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-festival" onclick="buyUpgrade('festival')">$450,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Global Phonk Tour</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$64,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-tour" onclick="buyUpgrade('tour')">$3,200,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Symphonic Phonk Orchestra</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$420,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-orchestra" onclick="buyUpgrade('orchestra')">$25,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Phonk Satellite Broadcast</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$2,800,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-satellite" onclick="buyUpgrade('satellite')">$180,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Subwoofer Megastructure</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$18,500,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-megastructure" onclick="buyUpgrade('megastructure')">$1,400,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Quantum Cowbell Matrix</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$125,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-matrix" onclick="buyUpgrade('matrix')">$10,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">The Eternal Bass Dimension</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$850,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-dimension" onclick="buyUpgrade('dimension')">$75,000,000,000,000,000</button>
+                </div>
+
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Hyper-Drive Distortion</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$5,200,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-distortion" onclick="buyUpgrade('distortion')">$500,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Cyber- Funk Syndicate</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$35,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-syndicate" onclick="buyUpgrade('syndicate')">$3,200,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Glitch-Hop Compressor</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$240,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-compressor" onclick="buyUpgrade('compressor')">$22,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Neon City Radio Takeover</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1,500,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-neonradio" onclick="buyUpgrade('neonradio')">$150,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Plasma Bass Synthesizer</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$9,200,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-plasmasynth" onclick="buyUpgrade('plasmasynth')">$950,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Sub-Atomic Reverb Chamber</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$62,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-subreverb" onclick="buyUpgrade('subreverb')">$6,500,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Metropolitan Megawatt Amp</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$410,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-megaamp" onclick="buyUpgrade('megaamp')">$45,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Atmospheric Cowbell Cloud</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$2,800,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-cloudcowbell" onclick="buyUpgrade('cloudcowbell')">$320,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Continental Sound Wave</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$18,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-soundwave" onclick="buyUpgrade('soundwave')">$2,100,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Tectonic Sub-Frequency Blast</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$120,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-tectonic" onclick="buyUpgrade('tectonic')">$15,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Orbital Vinyl Network</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$850,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-orbitalvinyl" onclick="buyUpgrade('orbitalvinyl')">$110,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Solar Flare Audio Limiter</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$5,800,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-flarelimiter" onclick="buyUpgrade('flarelimiter')">$850,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Nebula Echo Modulator</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$42,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-nebulamod" onclick="buyUpgrade('nebulamod')">$6,200,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Galactic Bassline Engine</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$290,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-galaxyengine" onclick="buyUpgrade('galaxyengine')">$45,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Supercluster Audio Array</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1,900,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-supercluster" onclick="buyUpgrade('supercluster')">$320,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Hyperspace Cowbell Laser</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$13,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-cowbelllaser" onclick="buyUpgrade('cowbelllaser')">$2,400,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Wormhole Pitch Shifter</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$92,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-pitchshifter" onclick="buyUpgrade('pitchshifter')">$18,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Chrono-Loop Automation</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$640,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-chronoloop" onclick="buyUpgrade('chronoloop')">$140,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Dark Matter Subwoofer</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$4,500,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-dmsub" onclick="buyUpgrade('dmsub')">$1,100,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Singularity Mastering Deck</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$31,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-singularitydeck" onclick="buyUpgrade('singularitydeck')">$8,500,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Cosmic Drifting Station</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$220,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-driftstation" onclick="buyUpgrade('driftstation')">$65,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Multiversal Phonk Anthem</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1,500,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-multiverseanthem" onclick="buyUpgrade('multiverseanthem')">$490,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Infinite Pattern Sequencer</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$11,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-infiniteseq" onclick="buyUpgrade('infiniteseq')">$3,800,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Aether Harmonic Overdrive</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$78,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-aetherdrive" onclick="buyUpgrade('aetherdrive')">$29,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Timeless Rhythm Continuum</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$540,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-rhythmcontinuum" onclick="buyUpgrade('rhythmcontinuum')">$220,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Omnipresent Soundscape System</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$3,900,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-omnipresentscape" onclick="buyUpgrade('omnipresentscape')">$1,800,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Super-Dimensional Vocal Chop</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$28,000,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-supervocal" onclick="buyUpgrade('supervocal')">$14,000,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Primeval Drift Genesis</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$210,000,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-driftgenesis" onclick="buyUpgrade('driftgenesis')">$110,000,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">The Omega Cowbell Matrix</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$1,600,000,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-omegamatrix" onclick="buyUpgrade('omegamatrix')">$950,000,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-name">Reality-Ending 808 Distorter</div>
+                        <div style="font-size:0.85rem; color:#aaa;">+$12,500,000,000,000,000,000,000,000,000,000,000,000,000 per click</div>
+                    </div>
+                    <button class="action-btn" id="up-reality808" onclick="buyUpgrade('reality808')">$8,500,000,000,000,000,000,000,000,000,000,000,000,000,000</button>
+                </div>
+
+                <div class="item-row" style="margin-top: 10px; border-color: gold; position: sticky; bottom: 0; z-index: 5; background-color: rgba(25, 20, 35, 0.98);">
+                    <div class="item-info">
+                        <div class="item-name" style="color: gold;">Perform Rebirth</div>
+                        <div style="font-size:0.8rem; color:#aaa;">Reset cash for multiplier scale</div>
+                    </div>
+                    <button class="action-btn" id="up-rebirth" onclick="triggerRebirth()" style="background: linear-gradient(45deg, #ff9900, #ff5500);">$10,000</button>
+                </div>
+            </div>
+        </div>
+
+<div class="sidebar" id="panel-blocks">
+    <div class="sidebar-header">Lucky Blocks</div>
+    <div class="scrollable-list">
+
+        <div class="item-row" style="border-color: var(--accent-gold);">
+            <div class="item-info">
+                <div class="item-name" style="color: var(--accent-gold);">Phonk Alpha Box</div>
+                <div style="font-size:0.85rem; color:#aaa;">Drops Skins & Audio Tracks (Tiered Odds)</div>
+            </div>
+            <button class="action-btn" id="buy-block-btn" onclick="buyLuckyBlock('alpha')">$25,000</button>
+        </div>
+        <div style="background:#0d0d1a; border:1px solid #2a2a3a; border-radius:8px; padding:10px 12px; margin-top:-6px; margin-bottom:4px;">
+            <div style="font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Possible Drops</div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Yara Yara Phonk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a1a00; color:var(--accent-gold);">54%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Tiki Tiki Phonk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#1a2a00; color:var(--accent-green);">30%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Montagem Alquimia</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#001a2a; color:var(--accent-blue);">10%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Bad Parenting Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a002a; color:var(--accent-magenta);">5%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">⭐ Not My Problem Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a0000; color:var(--accent-red);">1%</span></div>
+            </div>
+        </div>
+
+        <div class="item-row" style="border-color: var(--accent-blue);">
+            <div class="item-info">
+                <div class="item-name" style="color: var(--accent-blue);">Phonk Beta Box</div>
+                <div style="font-size:0.85rem; color:#aaa;">Drops Next-Gen Music Skins</div>
+            </div>
+            <button class="action-btn" id="buy-beta-btn" onclick="buyLuckyBlock('beta')">$50,000</button>
+        </div>
+        <div style="background:#0d0d1a; border:1px solid #2a2a3a; border-radius:8px; padding:10px 12px; margin-top:-6px; margin-bottom:4px;">
+            <div style="font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Possible Drops</div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Funk Do Bounce</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a1a00; color:var(--accent-gold);">54%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Passo Bem Solto</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#1a2a00; color:var(--accent-green);">30%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Matadora</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#001a2a; color:var(--accent-blue);">10%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Taka La Dentro</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a002a; color:var(--accent-magenta);">5%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">⭐ No Batidão</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a0000; color:var(--accent-red);">1%</span></div>
+            </div>
+        </div>
+
+        <div class="item-row" style="border-color: var(--accent-magenta);">
+            <div class="item-info">
+                <div class="item-name" style="color: var(--accent-magenta);">Phonk Gamma Box</div>
+                <div style="font-size:0.85rem; color:#aaa;">Drops Exclusive High-Voltage Audio Tracks</div>
+            </div>
+            <button class="action-btn" id="buy-gamma-btn" onclick="buyLuckyBlock('gamma')">$75,000</button>
+        </div>
+        <div style="background:#0d0d1a; border:1px solid #2a2a3a; border-radius:8px; padding:10px 12px; margin-top:-6px; margin-bottom:4px;">
+            <div style="font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Possible Drops</div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Los Voltaje</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a1a00; color:var(--accent-gold);">54%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Acelerada</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#1a2a00; color:var(--accent-green);">30%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Nervy Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#001a2a; color:var(--accent-blue);">10%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Vem Vem</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a002a; color:var(--accent-magenta);">5%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">⭐ Masha Ultrafunk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a0000; color:var(--accent-red);">1%</span></div>
+            </div>
+        </div>
+
+        <div class="item-row" style="border-color: var(--accent-red);">
+            <div class="item-info">
+                <div class="item-name" style="color: var(--accent-red);">Phonk Delta Box</div>
+                <div style="font-size:0.85rem; color:#aaa;">Drops Regional & Exclusive Phonk Anthems</div>
+            </div>
+            <button class="action-btn" id="buy-delta-btn" onclick="buyLuckyBlock('delta')">$100,000</button>
+        </div>
+        <div style="background:#0d0d1a; border:1px solid #2a2a3a; border-radius:8px; padding:10px 12px; margin-top:-6px; margin-bottom:4px;">
+            <div style="font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Possible Drops</div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Dystopia</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a1a00; color:var(--accent-gold);">54%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Nunca Muda</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#1a2a00; color:var(--accent-green);">30%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Montagem Domer</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#001a2a; color:var(--accent-blue);">10%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Fina Lana</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a002a; color:var(--accent-magenta);">5%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">⭐ Breaga Do Love</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a0000; color:var(--accent-red);">1%</span></div>
+            </div>
+        </div>
+
+        <div class="item-row" style="border-color: var(--accent-cyan);">
+            <div class="item-info">
+                <div class="item-name" style="color: var(--accent-cyan);">Phonk Epsilon Box</div>
+                <div style="font-size:0.85rem; color:#aaa;">Drops Ethereal, Cityscape & Premium Diamond Tracks</div>
+            </div>
+            <button class="action-btn" id="buy-epsilon-btn" onclick="buyLuckyBlock('epsilon')">$150,000</button>
+        </div>
+        <div style="background:#0d0d1a; border:1px solid #2a2a3a; border-radius:8px; padding:10px 12px; margin-top:-6px; margin-bottom:4px;">
+            <div style="font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Possible Drops</div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Sleeping City Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a1a00; color:var(--accent-gold);">54%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Hero Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#1a2a00; color:var(--accent-green);">30%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Last Chance Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#001a2a; color:var(--accent-blue);">10%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Montagem Safira</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a002a; color:var(--accent-magenta);">5%</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">⭐ Estilo Horizonte Diamante</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a0000; color:var(--accent-red);">1%</span></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+        <div class="sidebar" id="panel-phonks">
+            <div class="sidebar-header">Phonks Library</div>
+            <div class="scrollable-list">
+                <div class="phonk-grid" id="phonk-inventory-list"></div>
+            </div>
+        </div>
+      
+      <div class="sidebar" id="panel-trade">
+    <div class="sidebar-header">Trading Hub</div>
+    <div class="scrollable-list">
+
+        <div class="item-row" style="flex-direction:column; align-items:stretch;">
+            <div class="item-info">
+                <div class="item-name">Send Trade Request</div>
+                <div style="font-size:0.85rem; color:#aaa;">Type another player's username</div>
+            </div>
+
+            <input id="trade-user-input" class="login-input" placeholder="Enter username..." style="margin:10px 0 0 0;">
+            <button class="action-btn" style="margin-top:10px; width:100%;" onclick="sendTradeRequest()">Send Trade Request</button>
+        </div>
+
+        <div class="item-row" style="flex-direction:column; align-items:stretch;">
+            <div class="item-info">
+                <div class="item-name">Incoming Trade Requests</div>
+                <div style="font-size:0.85rem; color:#aaa;">Accept or decline trade invites</div>
+            </div>
+            <div id="incoming-trades-list" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+
+    </div>
+</div>
+      
+      <div class="roll-modal" id="trade-modal" style="width:min(1100px,95vw); max-height:90vh; overflow:auto; border-color:#00f0ff; box-shadow:0 0 40px #00f0ff;">
+    <h2 style="color:#00f0ff;">🔁 Live Trade</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; width:100%;">
+        
+        <div style="background:#101520; padding:15px; border-radius:10px; border:2px solid #333;">
+            <h3 style="margin-bottom:10px;">Your Offer</h3>
+
+            <label style="display:block; margin-bottom:8px;">Money</label>
+            <input id="trade-my-cash" type="number" min="0" value="0" class="login-input" style="margin-bottom:10px;" oninput="updateMyTradeOffer()">
+
+            <div style="font-weight:bold; margin-bottom:8px;">Your Phonks</div>
+            <div id="trade-my-phonks" style="display:flex; flex-direction:column; gap:8px; max-height:320px; overflow:auto;"></div>
+        </div>
+
+        <div style="background:#101520; padding:15px; border-radius:10px; border:2px solid #333;">
+            <h3 id="trade-partner-name" style="margin-bottom:10px;">Partner Offer</h3>
+
+            <div style="margin-bottom:12px;">
+                <div style="font-size:0.9rem; color:#aaa;">Money Offered</div>
+                <div id="trade-other-cash" style="font-size:1.3rem; font-weight:bold;">$0</div>
+            </div>
+
+            <div style="font-weight:bold; margin-bottom:8px;">Phonks Offered</div>
+            <div id="trade-other-phonks" style="display:flex; flex-direction:column; gap:8px; max-height:320px; overflow:auto;"></div>
+        </div>
+    </div>
+
+    <div style="display:flex; justify-content:center; gap:12px; margin-top:20px; flex-wrap:wrap;">
+        <button class="action-btn" id="trade-ready-btn" onclick="toggleTradeReady()">Ready</button>
+        <button class="action-btn" style="background:#c0392b;" onclick="cancelTrade()">Cancel Trade</button>
+    </div>
+
+    <div style="margin-top:12px; text-align:center; color:#aaa;" id="trade-status-text">Waiting...</div>
+</div>
+
+        <div class="roll-modal" id="reward-modal">
+            <h2 style="color: var(--accent-gold); font-size:1.5rem;">🎉 BLOCK UNLOCKED 🎉</h2>
+            <p id="reward-text" style="font-weight: bold; font-size:1.1rem;"></p>
+            <img id="reward-img" src="" alt="Dropped Reward Asset">
+            <button class="action-btn" onclick="closeModal()" style="min-width:100px; background:#444;">Ok</button>
+        </div>
+    </div>
+
+    <script>
+      // ---- NOTIFICATION SYSTEM ----
+const firebaseConfig = { databaseURL: "https://nj-games-chat-default-rtdb.firebaseio.com" };
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+let myCode = null, myNJUsername = null, deviceToken = null;
+let loginTimestamp = null;
+let notifTimeout = null;
+
+function generateDeviceFingerprint() {
+    let specs = [
+        navigator.userAgent,
+        screen.width + "x" + screen.height,
+        screen.colorDepth,
+        navigator.hardwareConcurrency || 4,
+        new Date().getTimezoneOffset()
+    ].join('||');
+    let hash = 0;
+    for (let i = 0; i < specs.length; i++) {
+        let char = specs.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    deviceToken = "DEV-" + Math.abs(hash);
+}
+
+function checkDeviceAutoLogin() {
+    database.ref('device_sessions/' + deviceToken).once('value').then((snap) => {
+        if (snap.exists()) {
+            let savedU = snap.val().user;
+            let savedP = snap.val().pass;
+            database.ref('accounts/' + savedU.toLowerCase()).once('value').then((accSnap) => {
+                if (accSnap.exists() && accSnap.val().password === savedP) {
+                    const d = accSnap.val();
+                    myCode = d.friendCode;
+                    myNJUsername = d.username;
+                    loginTimestamp = Date.now();
+                    initNotificationListeners();
+                }
+            });
+        }
+    });
+}
+
+function triggerToastNotification(message, isChatType = false) {
+    clearTimeout(notifTimeout);
+    const banner = document.getElementById('notification-alert');
+    banner.innerText = message;
+    if (isChatType) { banner.classList.add('chat-notif'); } 
+    else { banner.classList.remove('chat-notif'); }
+    banner.classList.add('show');
+    notifTimeout = setTimeout(() => { banner.classList.remove('show'); }, 4500);
+}
+
+function closeNotification() {
+    document.getElementById('notification-alert').classList.remove('show');
+}
+
+function initNotificationListeners() {
+    if (!myCode) return;
+    database.ref(`requests/${myCode}`).on('child_added', (snap) => {
+        let senderName = snap.val();
+        if (loginTimestamp && Date.now() - loginTimestamp > 2000) {
+            triggerToastNotification(`✨ New Friend Request from ${senderName}!`, false);
+        }
+    });
+    database.ref('chats').on('child_added', (snapshot) => {
+        let roomName = snapshot.key;
+        if (roomName.includes(myCode)) {
+            database.ref(`chats/${roomName}`).limitToLast(1).on('child_added', (msgSnap) => {
+                let packet = msgSnap.val();
+                if (packet.sender !== myCode) {
+                    if (Date.now() - packet.timestamp < 4000) {
+                        database.ref(`users/${packet.sender}`).once('value').then((uSnap) => {
+                            let senderName = uSnap.exists() ? uSnap.val().username : "A Friend";
+                            triggerToastNotification(`💬 ${senderName}: "${packet.text}"`, true);
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+generateDeviceFingerprint();
+checkDeviceAutoLogin();
+// ---- END NOTIFICATION SYSTEM ----
+        let currentUsername = "";
+        let cash = 1; 
+        let multiplier = 1;
+        let rebirths = 0;
+        let activeSkin = 'yara';
+      
+      let currentTradeId = null;
+let currentTradePartner = null;
+let currentTradeListener = null;
+let currentIncomingTradeListener = null;
+let tradeFinalizing = false;
+
+let phonksDb = {
+    yara: { name: "Yara Yara Phonk", videoId: "KK5uGdYGo80", img: "https://i.scdn.co/image/ab67616d00001e0297e6dfb873d548b382e6cb40", owned: true, baseValue: 1, level: 1 },
+    tikitiki: { name: "Tiki Tiki Phonk", videoId: "5YmRKZ3haIA", img: "https://i1.sndcdn.com/artworks-3014lXZ79HIKw3DM-XBQqjw-t1080x1080.jpg", owned: false, baseValue: 5, level: 1 },
+    alquimia: { name: "Montagem Alquimia", videoId: "w9diSR548YQ", img: "https://resources.tidal.com/images/4f9a1074/ed6f/4849/89e9/33ef24328ca8/1280x1280.jpg", owned: false, baseValue: 25, level: 1 },
+    badparenting: { name: "Bad Parenting Funk", videoId: "dOW_VkPIzjk", img: "https://cdn-images.dzcdn.net/images/cover/2ed4830e6dace159ffcbae7335f9a1e7/0x1900-000000-80-0-0.jpg", owned: false, baseValue: 100, level: 1 },
+    notmyproblem: { name: "Not My Problem Funk", videoId: "2I2HyKse_K0", img: "https://i.scdn.co/image/ab67616d0000b273ac7a0ff00e09ce00b77146c9", owned: false, baseValue: 500, level: 1 },
+    funkdobounce: { name: "Funk Do Bounce", videoId: "kWW-jZ6H_LE", img: "https://i.scdn.co/image/ab67616d0000b2737e37f6e5b613003d4c185672", owned: false, baseValue: 2000, level: 1 },
+    passobemsolto: { name: "Passo Bem Solto", videoId: "Wp5tq856U5U", img: "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Passo_Bem_Solto_-_Atlxs.jpg/250px-Passo_Bem_Solto_-_Atlxs.jpg", owned: false, baseValue: 8000, level: 1 },
+    matadora: { name: "Matadora", videoId: "YIYBhDeQfT0", img: "https://i.scdn.co/image/ab67616d0000b2738630ce04dcdf0c89f218b7d8", owned: false, baseValue: 30000, level: 1 },
+    takaladentro: { name: "Taka La Dentro", videoId: "SitxbBnisHQ", img: "https://i.scdn.co/image/ab67616d0000b273d877bd0bd236a8dae39ad73c", owned: false, baseValue: 100000, level: 1 },
+    nobatidao: { name: "No Batidão", videoId: "orOgilmiL_4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9IafSjUQtj_t4nq5Ik4CWGfyFtums5bJuxw&s", owned: false, baseValue: 400000, level: 1 },
+    losvoltaje: { name: "Los Voltaje", videoId: "lgnjW51Lal8", img: "https://m.media-amazon.com/images/I/61CVTgI-JBL._UXNaN_FMjpg_QL85_.jpg", owned: false, baseValue: 1500000, level: 1 },
+    acelerada: { name: "Acelerada", videoId: "tS-mLwExJg0", img: "https://i.scdn.co/image/ab67616d00001e0225690b825d3912a4fd6f7ba9", owned: false, baseValue: 5000000, level: 1 },
+    nervyfunk: { name: "Nervy Funk", videoId: "0IzHYrVbvEw", img: "https://i.scdn.co/image/ab67616d00001e02fd9ab575a2d75303c5e5456e", owned: false, baseValue: 20000000, level: 1 },
+    vemvem: { name: "Vem Vem", videoId: "7YzS9QQP1Dk", img: "https://i1.sndcdn.com/artworks-cFo934UBQnGR-0-t500x500.jpg", owned: false, baseValue: 80000000, level: 1 },
+    mashaultrafunk: { name: "Masha Ultrafunk", videoId: "GiF_jrmFYac", img: "https://i1.sndcdn.com/artworks-RgUythmSVOkqZafF-5tRdoA-t500x500.jpg", owned: false, baseValue: 100000000, level: 1 },
+    dystopia: { name: "Dystopia", videoId: "zAAUUvlJWoY", img: "https://i.ytimg.com/vi/oddiRhqK6io/maxresdefault.jpg", owned: false, baseValue: 500000000, level: 1 },
+    nuncamuda: { name: "Nunca Muda", videoId: "Ju-VnQuWoQU", img: "https://i.scdn.co/image/ab67616d0000b2736dd11d164947e94d2c3bf381", owned: false, baseValue: 2000000000, level: 1 },
+    domer: { name: "Montagem Domer", videoId: "XURd55MFBCU", img: "https://i.scdn.co/image/ab67616d0000b2737741be70af8ff6e6d74ce1a6", owned: false, baseValue: 8000000000, level: 1 },
+    finalana: { name: "Fina Lana", videoId: "Cn9Q7vnwcR8", img: "https://i.ytimg.com/vi/FYl-cGhSoA0/mqdefault.jpg", owned: false, baseValue: 30000000000, level: 1 },
+    breagadolove: { name: "Breaga Do Love", videoId: "fyGovkt7DpI", img: "https://i.ytimg.com/vi/QCOjVGL0Ey8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDo_Z4OtNAr_LJ2TKTqqCfG-0dc3Q", owned: false, baseValue: 100000000000, level: 1 },
+    sleepingcity: { name: "Sleeping City Funk", videoId: "Z7YwotjnObE", img: "https://i.scdn.co/image/ab67616d0000b2738d057900367c896ddc4232bf", owned: false, baseValue: 500000000000, level: 1 },
+    herofunk: { name: "Hero Funk", videoId: "kzwSTesTRq8", img: "https://i.scdn.co/image/ab67616d0000b273bbae67402e2897d4622ebd98", owned: false, baseValue: 2000000000000, level: 1 },
+    lastchance: { name: "Last Chance Funk", videoId: "7ENyxpnyVMw", img: "https://i.scdn.co/image/ab67616d0000b273a8681df8f85d6d2f3670615e", owned: false, baseValue: 8000000000000, level: 1 },
+    safira: { name: "Montagem Safira", videoId: "Aj-2kcEez5E", img: "https://i.scdn.co/image/ab67616d00001e0211448ac76c22d603e329725d", owned: false, baseValue: 30000000000000, level: 1 },
+    horizonte: { name: "Estilo Horizonte Diamante", videoId: "EoV_QmRt_Ww", img: "https://i1.sndcdn.com/artworks-7L5KW0m4ycjA-0-t500x500.jpg", owned: false, baseValue: 100000000000000, level: 1 }
+};
+
+        const costs = { 
+            bass: 50, eq: 400, xlr: 2500, monitors: 15000, sub: 85000, mixer: 450000, cowbell: 3200000, vinyl: 25000000, label: 180000000, fl: 1200000000, mastering: 8500000000, residency: 60000000000, festival: 450000000000, tour: 3200000000000, orchestra: 25000000000000, satellite: 180000000000000, megastructure: 1400000000000000, matrix: 10000000000000000, dimension: 75000000000000000,
+            distortion: 500000000000000000, syndicate: 3200000000000000000, compressor: 22000000000000000000, neonradio: 150000000000000000000, plasmasynth: 950000000000000000000, subreverb: 6500000000000000000000, megaamp: 45000000000000000000000, cloudcowbell: 320000000000000000000000, soundwave: 2100000000000000000000000, tectonic: 15000000000000000000000000, orbitalvinyl: 110000000000000000000000000, flarelimiter: 850000000000000000000000000, nebulamod: 6200000000000000000000000000, galaxyengine: 45000000000000000000000000000, supercluster: 320000000000000000000000000000, cowbelllaser: 2400000000000000000000000000000, pitchshifter: 18000000000000000000000000000000, chronoloop: 140000000000000000000000000000000, dmsub: 1100000000000000000000000000000000, singularitydeck: 85000000000000000000000000000000000, driftstation: 650000000000000000000000000000000000, multiverseanthem: 4900000000000000000000000000000000000, infiniteseq: 38000000000000000000000000000000000000, aetherdrive: 290000000000000000000000000000000000000, rhythmcontinuum: 2200000000000000000000000000000000000000, omnipresentscape: 18000000000000000000000000000000000000000, supervocal: 140000000000000000000000000000000000000000, driftgenesis: 1100000000000000000000000000000000000000000, omegamatrix: 95000000000000000000000000000000000000000000, reality808: 850000000000000000000000000000000000000000000,
+            rebirth: 10000, luckyBlock: 25000, betaBlock: 50000, gammaBlock: 75000, deltaBlock: 100000, epsilonBlock: 150000
+        };
+function getClickValue() {
+    const skin = phonksDb[activeSkin];
+    const skinValue = skin.baseValue * skin.level;
+    return (multiplier + skinValue) * (1 + rebirths);
+}
+        const cashDisplay = document.getElementById('cash-display');
+        const rebirthDisplay = document.getElementById('rebirth-display');
+        const clickButton = document.getElementById('click-button');
+        const mainImg = document.getElementById('main-clicker-img');
+        const deckWrapper = document.getElementById('deck-wrapper');
+      
+      function buildInventoryState() {
+    let inventoryState = {};
+    for (const [key, value] of Object.entries(phonksDb)) {
+        inventoryState[key] = {
+            owned: !!value.owned,
+            level: value.level || 1
+        };
+    }
+    return inventoryState;
+}
+
+function syncPlayerGameToFirebase() {
+    if (!myCode || !myNJUsername) return;
+
+    database.ref(`users/${myCode}/game`).set({
+        username: myNJUsername,
+        cash: cash,
+        rebirths: rebirths,
+        multiplier: multiplier,
+        activeSkin: activeSkin,
+        inventory: buildInventoryState(),
+        updatedAt: Date.now()
+    });
+}
+
+function applyRemoteGameToLocal(remoteGame) {
+    if (!remoteGame) return;
+
+    cash = remoteGame.cash || 0;
+    multiplier = remoteGame.multiplier || 1;
+    rebirths = remoteGame.rebirths || 0;
+    activeSkin = remoteGame.activeSkin || 'yara';
+
+    if (remoteGame.inventory) {
+        for (const key in remoteGame.inventory) {
+            if (phonksDb[key]) {
+                phonksDb[key].owned = !!remoteGame.inventory[key].owned;
+                phonksDb[key].level = remoteGame.inventory[key].level || 1;
+            }
+        }
+    }
+
+    if (phonksDb[activeSkin] && !phonksDb[activeSkin].owned) {
+        activeSkin = 'yara';
+    }
+
+    mainImg.src = phonksDb[activeSkin].img;
+    updateUI();
+    renderInventory();
+    saveGameProgress();
+}
+
+        // --- SESSION HANDLING & SAVE SYSTEMS ---
+        function initSession() {
+            let userIn = document.getElementById('username-input').value.trim();
+            if (!userIn) {
+                alert("Please type a valid username!");
+                return;
+            }
+            currentUsername = userIn.toLowerCase();
+            document.getElementById('display-user-tag').innerText = `Producer: ${userIn}`;
+            document.getElementById('login-overlay').style.display = 'none';
+
+           loadGameProgress();
+syncAudioDeck();
+updateUI();
+
+setTimeout(() => {
+    initTradeRequestListener();
+    initOutgoingTradeWatcher();
+    syncPlayerGameToFirebase();
+}, 300);
+        }
+
+        function saveGameProgress() {
+            if (!currentUsername) return;
+            
+            // Build inventory mapping of true/false states to clean up storage footprint
+            let inventoryState = {};
+            for (const [key, value] of Object.entries(phonksDb)) {
+                inventoryState[key] = { owned: value.owned, level: value.level };
+            }
+
+            let saveData = {
+                cash: cash,
+                multiplier: multiplier,
+                rebirths: rebirths,
+                activeSkin: activeSkin,
+                inventory: inventoryState,
+                costs: costs
+            };
+
+            localStorage.setItem(`phonk_save_${currentUsername}`, JSON.stringify(saveData));
+syncPlayerGameToFirebase();
+        }
+
+        function loadGameProgress() {
+            let saved = localStorage.getItem(`phonk_save_${currentUsername}`);
+            if (saved) {
+                let parsed = JSON.parse(saved);
+                cash = parsed.cash || 0;
+                multiplier = parsed.multiplier || 1;
+                rebirths = parsed.rebirths || 0;
+                activeSkin = parsed.activeSkin || 'yara';
+                
+                if (parsed.costs) {
+                    Object.assign(costs, parsed.costs);
+                }
+                if (parsed.inventory) {
+    for (const key in parsed.inventory) {
+        if (phonksDb[key]) {
+            const entry = parsed.inventory[key];
+            if (typeof entry === 'object') {
+                phonksDb[key].owned = entry.owned;
+                phonksDb[key].level = entry.level || 1;
+            } else {
+                phonksDb[key].owned = entry;
+            }
+        }
+    }
+}
+                mainImg.src = phonksDb[activeSkin].img;
+            }
+        }
+
+        function syncAudioDeck() {
+            if(!currentUsername) return;
+            const currentVideo = phonksDb[activeSkin].videoId;
+            deckWrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${currentVideo}?autoplay=1&loop=1&playlist=${currentVideo}&controls=1" allow="autoplay; encrypted-media"></iframe>`;
+        }
+
+        function switchPanel(panelId, btnElement) {
+            document.querySelectorAll('.sidebar').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`panel-${panelId}`).classList.add('active');
+            btnElement.classList.add('active');
+            if(panelId === 'phonks') renderInventory();
+        }
+
+        clickButton.addEventListener('click', (e) => {
+            if(!currentUsername) return;
+           let gain = getClickValue();
+            cash += gain;
+
+            updateUI();
+            saveGameProgress();
+            createFloatingText(e.clientX, e.clientY, `+$${gain.toLocaleString()}`);
+        });
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        if (!currentUsername) return;
+        let gain = multiplier * (1 + rebirths);
+        cash += gain;
+        updateUI();
+        saveGameProgress();
+        const rect = clickButton.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        createFloatingText(cx, cy, `+$${gain.toLocaleString()}`);
+        clickButton.style.transform = 'scale(0.94)';
+        clickButton.style.borderColor = 'var(--accent-green)';
+        clickButton.style.boxShadow = '0 0 35px var(--accent-green)';
+        setTimeout(() => {
+            clickButton.style.transform = '';
+            clickButton.style.borderColor = '';
+            clickButton.style.boxShadow = '';
+        }, 100);
+    }
+});
+        function sanitizeTradeRoom(a, b) {
+    return [a, b].sort().join('_');
+}
+
+function sendTradeRequest() {
+    if (!myCode || !myNJUsername) {
+        alert("Trade system needs your NJ account loaded first.");
+        return;
+    }
+
+    const targetUsername = document.getElementById('trade-user-ffinput').value.trim().toLowerCase();
+    if (!targetUsername) {
+        alert("Type a username first.");
+        return;
+    }
+
+    if (targetUsername === myNJUsername.toLowerCase()) {
+        alert("You can't trade yourself.");
+        return;
+    }
+
+    database.ref('users').once('value').then(snap => {
+        if (!snap.exists()) {
+            alert("No users found.");
+            return;
+        }
+
+        let targetCode = null;
+        let targetDisplay = null;
+
+        snap.forEach(child => {
+            const val = child.val();
+            if (val && val.username && val.username.toLowerCase() === targetUsername) {
+                targetCode = child.key;
+                targetDisplay = val.username;
+            }
+        });
+
+        if (!targetCode) {
+            alert("That username wasn't found.");
+            return;
+        }
+
+        const reqRef = database.ref(`tradeRequests/${targetCode}`).push();
+        reqRef.set({
+            fromCode: myCode,
+            fromUsername: myNJUsername,
+            toCode: targetCode,
+            toUsername: targetDisplay,
+            createdAt: Date.now(),
+            status: 'pending'
+        });
+
+        alert(`Trade request sent to ${targetDisplay}!`);
+        document.getElementById('trade-user-input').value = '';
+    });
+}
+
+function initTradeRequestListener() {
+    if (!myCode) return;
+
+    const handler = (snap) => {
+        const wrap = document.getElementById('incoming-trades-list');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+
+        if (!snap.exists()) {
+            wrap.innerHTML = `<div style="color:#888; font-size:0.9rem;">No incoming trades</div>`;
+            return;
+        }
+
+        const entries = [];
+        snap.forEach(child => {
+            const req = child.val();
+            if (req && req.status === 'pending') {
+                entries.push({ id: child.key, ...req });
+            }
+        });
+
+        if (!entries.length) {
+            wrap.innerHTML = `<div style="color:#888; font-size:0.9rem;">No incoming trades</div>`;
+            return;
+        }
+
+        entries.reverse().forEach(req => {
+            const row = document.createElement('div');
+            row.style.background = '#111';
+            row.style.border = '2px solid #333';
+            row.style.borderRadius = '8px';
+            row.style.padding = '10px';
+            row.innerHTML = `
+                <div style="font-weight:bold; margin-bottom:8px;">${req.fromUsername}</div>
+                <div style="display:flex; gap:8px;">
+                    <button class="action-btn" onclick="acceptTradeRequest('${req.id}')">Accept</button>
+                    <button class="action-btn" style="background:#c0392b;" onclick="declineTradeRequest('${req.id}')">Decline</button>
+                </div>
+            `;
+            wrap.appendChild(row);
+        });
+    };
+
+    currentIncomingTradeListener = handler;
+    database.ref(`tradeRequests/${myCode}`).on('value', handler);
+}
+
+function declineTradeRequest(requestId) {
+    if (!myCode) return;
+    database.ref(`tradeRequests/${myCode}/${requestId}/status`).set('declined');
+}
+
+function acceptTradeRequest(requestId) {
+    if (!myCode) return;
+
+    const reqPath = `tradeRequests/${myCode}/${requestId}`;
+    database.ref(reqPath).once('value').then(snap => {
+        if (!snap.exists()) return;
+
+        const req = snap.val();
+        if (!req || req.status !== 'pending') return;
+
+        const tradeId = 'trade_' + sanitizeTradeRoom(req.fromCode, req.toCode);
+
+        const tradeData = {
+            id: tradeId,
+            playerA: req.fromCode,
+            playerB: req.toCode,
+            usernames: {
+                [req.fromCode]: req.fromUsername,
+                [req.toCode]: req.toUsername
+            },
+            offers: {
+                [req.fromCode]: { cash: 0, phonks: {}, ready: false },
+                [req.toCode]: { cash: 0, phonks: {}, ready: false }
+            },
+            status: 'active',
+            createdAt: Date.now()
+        };
+
+        database.ref(`trades/${tradeId}`).set(tradeData).then(() => {
+            database.ref(reqPath + '/status').set('accepted');
+            openTradeRoom(tradeId);
+        });
+    });
+}
+
+function initOutgoingTradeWatcher() {
+    if (!myCode) return;
+
+    database.ref('trades').on('child_added', snap => {
+        const trade = snap.val();
+        if (!trade) return;
+
+        if ((trade.playerA === myCode || trade.playerB === myCode) && trade.status === 'active') {
+            if (!currentTradeId) openTradeRoom(trade.id);
+        }
+    });
+}
+
+function openTradeRoom(tradeId) {
+    currentTradeId = tradeId;
+
+    const tradeRef = database.ref(`trades/${tradeId}`);
+    const modal = document.getElementById('trade-modal');
+
+    const handler = (snap) => {
+        if (!snap.exists()) {
+            modal.classList.remove('show');
+            currentTradeId = null;
+            return;
+        }
+
+        const trade = snap.val();
+        if (!trade || trade.status !== 'active') {
+            if (trade && trade.status === 'completed') {
+                document.getElementById('trade-status-text').innerText = 'Trade completed!';
+            } else {
+                document.getElementById('trade-status-text').innerText = 'Trade cancelled.';
+            }
+            setTimeout(() => modal.classList.remove('show'), 1200);
+            return;
+        }
+
+        const otherCode = trade.playerA === myCode ? trade.playerB : trade.playerA;
+        currentTradePartner = otherCode;
+
+        document.getElementById('trade-partner-name').innerText =
+            `${trade.usernames[otherCode] || 'Partner'} Offer`;
+
+        renderMyTradePhonks(trade);
+        renderTradePartnerOffer(trade);
+
+        const myReady = !!trade.offers?.[myCode]?.ready;
+        const theirReady = !!trade.offers?.[otherCode]?.ready;
+
+        document.getElementById('trade-status-text').innerText =
+            `You: ${myReady ? 'READY' : 'NOT READY'} | Them: ${theirReady ? 'READY' : 'NOT READY'}`;
+
+        modal.classList.add('show');
+
+        if (myReady && theirReady) {
+            finalizeTrade(trade);
+        }
+    };
+
+    currentTradeListener = handler;
+    tradeRef.on('value', handler);
+}
+
+function renderMyTradePhonks(trade) {
+    const box = document.getElementById('trade-my-phonks');
+    if (!box) return;
+    box.innerHTML = '';
+
+    const myOffer = trade.offers?.[myCode]?.phonks || {};
+
+    for (const [id, item] of Object.entries(phonksDb)) {
+        if (!item.owned) continue;
+
+        const checked = !!myOffer[id];
+
+        const row = document.createElement('label');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.gap = '10px';
+        row.style.background = '#171717';
+        row.style.padding = '8px';
+        row.style.borderRadius = '6px';
+        row.innerHTML = `
+            <span>${item.name} <span style="color:#888;">(Lv ${item.level})</span></span>
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleTradePhonk('${id}', this.checked)">
+        `;
+        box.appendChild(row);
+    }
+
+    if (!box.innerHTML.trim()) {
+        box.innerHTML = `<div style="color:#888;">No tradeable phonks</div>`;
+    }
+
+    const myCashInput = document.getElementById('trade-my-cash');
+    if (myCashInput) {
+        myCashInput.value = trade.offers?.[myCode]?.cash || 0;
+    }
+}
+
+function renderTradePartnerOffer(trade) {
+    const otherCode = trade.playerA === myCode ? trade.playerB : trade.playerA;
+    const offer = trade.offers?.[otherCode] || { cash: 0, phonks: {} };
+
+    document.getElementById('trade-other-cash').innerText = `$${Number(offer.cash || 0).toLocaleString()}`;
+
+    const box = document.getElementById('trade-other-phonks');
+    box.innerHTML = '';
+
+    const ids = Object.keys(offer.phonks || {}).filter(k => offer.phonks[k]);
+    if (!ids.length) {
+        box.innerHTML = `<div style="color:#888;">Nothing offered yet</div>`;
+        return;
+    }
+
+    ids.forEach(id => {
+        const item = phonksDb[id];
+        const div = document.createElement('div');
+        div.style.background = '#171717';
+        div.style.padding = '8px';
+        div.style.borderRadius = '6px';
+        div.textContent = item ? `${item.name} (Lv ${item.level})` : id;
+        box.appendChild(div);
+    });
+}
+
+function resetTradeReadyOnOfferChange() {
+    if (!currentTradeId || !myCode) return;
+    database.ref(`trades/${currentTradeId}/offers/${myCode}/ready`).set(false);
+}
+
+function updateMyTradeOffer() {
+    if (!currentTradeId || !myCode) return;
+
+    let offerCash = Number(document.getElementById('trade-my-cash').value || 0);
+    if (offerCash < 0) offerCash = 0;
+    if (offerCash > cash) offerCash = cash;
+
+    database.ref(`trades/${currentTradeId}/offers/${myCode}/cash`).set(offerCash);
+    resetTradeReadyOnOfferChange();
+}
+
+function toggleTradePhonk(phonkId, checked) {
+    if (!currentTradeId || !myCode) return;
+
+    database.ref(`trades/${currentTradeId}/offers/${myCode}/phonks/${phonkId}`).set(checked);
+    resetTradeReadyOnOfferChange();
+}
+
+function toggleTradeReady() {
+    if (!currentTradeId || !myCode) return;
+
+    const cashOffer = Number(document.getElementById('trade-my-cash').value || 0);
+    if (cashOffer > cash) {
+        alert("You don't have that much cash.");
+        return;
+    }
+
+    database.ref(`trades/${currentTradeId}/offers/${myCode}/ready`).once('value').then(snap => {
+        const nowReady = !snap.val();
+        database.ref(`trades/${currentTradeId}/offers/${myCode}/ready`).set(nowReady);
+    });
+}
+
+function finalizeTrade(trade) {
+    if (tradeFinalizing) return;
+    tradeFinalizing = true;
+
+    const a = trade.playerA;
+    const b = trade.playerB;
+    const offerA = trade.offers[a] || { cash: 0, phonks: {} };
+    const offerB = trade.offers[b] || { cash: 0, phonks: {} };
+
+    Promise.all([
+        database.ref(`users/${a}/game`).once('value'),
+        database.ref(`users/${b}/game`).once('value')
+    ]).then(([snapA, snapB]) => {
+        if (!snapA.exists() || !snapB.exists()) throw new Error("Missing player game data.");
+
+        const gameA = snapA.val();
+        const gameB = snapB.val();
+
+        const invA = gameA.inventory || {};
+        const invB = gameB.inventory || {};
+
+        for (const id in offerA.phonks) {
+            if (offerA.phonks[id] && !invA[id]?.owned) throw new Error(`${trade.usernames[a]} no longer owns ${id}`);
+        }
+        for (const id in offerB.phonks) {
+            if (offerB.phonks[id] && !invB[id]?.owned) throw new Error(`${trade.usernames[b]} no longer owns ${id}`);
+        }
+
+        if ((offerA.cash || 0) > (gameA.cash || 0)) throw new Error("Player A cash invalid");
+        if ((offerB.cash || 0) > (gameB.cash || 0)) throw new Error("Player B cash invalid");
+
+        gameA.cash = (gameA.cash || 0) - (offerA.cash || 0) + (offerB.cash || 0);
+        gameB.cash = (gameB.cash || 0) - (offerB.cash || 0) + (offerA.cash || 0);
+
+        for (const id in offerA.phonks) {
+            if (!offerA.phonks[id]) continue;
+            invA[id] = invA[id] || { owned: false, level: 1 };
+            invB[id] = invB[id] || { owned: false, level: 1 };
+
+            invB[id] = { ...invA[id], owned: true };
+            invA[id].owned = false;
+        }
+
+        for (const id in offerB.phonks) {
+            if (!offerB.phonks[id]) continue;
+            invB[id] = invB[id] || { owned: false, level: 1 };
+            invA[id] = invA[id] || { owned: false, level: 1 };
+
+            invA[id] = { ...invB[id], owned: true };
+            invB[id].owned = false;
+        }
+
+        gameA.inventory = invA;
+        gameB.inventory = invB;
+
+        const updates = {};
+        updates[`users/${a}/game`] = gameA;
+        updates[`users/${b}/game`] = gameB;
+        updates[`trades/${trade.id}/status`] = 'completed';
+        updates[`trades/${trade.id}/completedAt`] = Date.now();
+
+        return database.ref().update(updates).then(() => {
+            if (myCode === a) applyRemoteGameToLocal(gameA);
+            if (myCode === b) applyRemoteGameToLocal(gameB);
+
+            document.getElementById('trade-status-text').innerText = 'Trade completed!';
+            setTimeout(() => {
+                document.getElementById('trade-modal').classList.remove('show');
+            }, 1200);
+        });
+    }).catch(err => {
+        console.error(err);
+        alert("Trade failed: " + err.message);
+        if (trade?.id) database.ref(`trades/${trade.id}/status`).set('cancelled');
+    }).finally(() => {
+        tradeFinalizing = false;
+    });
+}
+
+function cancelTrade() {
+    if (!currentTradeId) return;
+    database.ref(`trades/${currentTradeId}/status`).set('cancelled');
+    document.getElementById('trade-modal').classList.remove('show');
+}
+      
+        function buyUpgrade(type) {
+            if (cash >= costs[type]) {
+                cash -= costs[type];
+                if (type === 'bass') { multiplier += 1; costs.bass = Math.floor(costs.bass * 1.5); }
+                else if (type === 'eq') { multiplier += 12; costs.eq = Math.floor(costs.eq * 1.6); }
+                else if (type === 'xlr') { multiplier += 85; costs.xlr = Math.floor(costs.xlr * 1.7); }
+                else if (type === 'monitors') { multiplier += 450; costs.monitors = Math.floor(costs.monitors * 1.75); }
+                else if (type === 'sub') { multiplier += 2200; costs.sub = Math.floor(costs.sub * 1.8); }
+                else if (type === 'mixer') { multiplier += 15000; costs.mixer = Math.floor(costs.mixer * 1.85); }
+                else if (type === 'cowbell') { multiplier += 90000; costs.cowbell = Math.floor(costs.cowbell * 1.9); }
+                else if (type === 'vinyl') { multiplier += 650000; costs.vinyl = Math.floor(costs.vinyl * 1.95); }
+                else if (type === 'label') { multiplier += 4500000; costs.label = Math.floor(costs.label * 2.0); }
+                else if (type === 'fl') { multiplier += 32000000; costs.fl = Math.floor(costs.fl * 2.1); }
+                else if (type === 'mastering') { multiplier += 210000000; costs.mastering = Math.floor(costs.mastering * 2.2); }
+                else if (type === 'residency') { multiplier += 1500000000; costs.residency = Math.floor(costs.residency * 2.3); }
+                else if (type === 'festival') { multiplier += 9800000000; costs.festival = Math.floor(costs.festival * 2.4); }
+                else if (type === 'tour') { multiplier += 64000000000; costs.tour = Math.floor(costs.tour * 2.5); }
+                else if (type === 'orchestra') { multiplier += 420000000000; costs.orchestra = Math.floor(costs.orchestra * 2.6); }
+                else if (type === 'satellite') { multiplier += 2800000000000; costs.satellite = Math.floor(costs.satellite * 2.7); }
+                else if (type === 'megastructure') { multiplier += 18500000000000; costs.megastructure = Math.floor(costs.megastructure * 2.8); }
+                else if (type === 'matrix') { multiplier += 125000000000000; costs.matrix = Math.floor(costs.matrix * 2.9); }
+                else if (type === 'dimension') { multiplier += 850000000000000; costs.dimension = Math.floor(costs.dimension * 3.0); }
+                else if (type === 'distortion') { multiplier += 5200000000000000; costs.distortion = Math.floor(costs.distortion * 3.1); }
+                else if (type === 'syndicate') { multiplier += 35000000000000000; costs.syndicate = Math.floor(costs.syndicate * 3.15); }
+                else if (type === 'compressor') { multiplier += 240000000000000000; costs.compressor = Math.floor(costs.compressor * 3.2); }
+                else if (type === 'neonradio') { multiplier += 1500000000000000000; costs.neonradio = Math.floor(costs.neonradio * 3.25); }
+                else if (type === 'plasmasynth') { multiplier += 9200000000000000000; costs.plasmasynth = Math.floor(costs.plasmasynth * 3.3); }
+                else if (type === 'subreverb') { multiplier += 62000000000000000000; costs.subreverb = Math.floor(costs.subreverb * 3.35); }
+                else if (type === 'megaamp') { multiplier += 410000000000000000000; costs.megaamp = Math.floor(costs.megaamp * 3.4); }
+                else if (type === 'cloudcowbell') { multiplier += 2800000000000000000000; costs.cloudcowbell = Math.floor(costs.cloudcowbell * 3.45); }
+                else if (type === 'soundwave') { multiplier += 18000000000000000000000; costs.soundwave = Math.floor(costs.soundwave * 3.5); }
+                else if (type === 'tectonic') { multiplier += 120000000000000000000000; costs.tectonic = Math.floor(costs.tectonic * 3.55); }
+                else if (type === 'orbitalvinyl') { multiplier += 850000000000000000000000; costs.orbitalvinyl = Math.floor(costs.orbitalvinyl * 3.6); }
+                else if (type === 'flarelimiter') { multiplier += 5800000000000000000000000; costs.flarelimiter = Math.floor(costs.flarelimiter * 3.65); }
+                else if (type === 'nebulamod') { multiplier += 42000000000000000000000000; costs.nebulamod = Math.floor(costs.nebulamod * 3.7); }
+                else if (type === 'galaxyengine') { multiplier += 290000000000000000000000000; costs.galaxyengine = Math.floor(costs.galaxyengine * 3.75); }
+                else if (type === 'supercluster') { multiplier += 1900000000000000000000000000; costs.supercluster = Math.floor(costs.supercluster * 3.8); }
+                else if (type === 'cowbelllaser') { multiplier += 13000000000000000000000000000; costs.cowbelllaser = Math.floor(costs.cowbelllaser * 3.85); }
+                else if (type === 'pitchshifter') { multiplier += 92000000000000000000000000000; costs.pitchshifter = Math.floor(costs.pitchshifter * 3.9); }
+                else if (type === 'chronoloop') { multiplier += 640000000000000000000000000000; costs.chronoloop = Math.floor(costs.chronoloop * 3.95); }
+                else if (type === 'dmsub') { multiplier += 4500000000000000000000000000000; costs.dmsub = Math.floor(costs.dmsub * 4.0); }
+                else if (type === 'singularitydeck') { multiplier += 31000000000000000000000000000000; costs.singularitydeck = Math.floor(costs.singularitydeck * 4.05); }
+                else if (type === 'driftstation') { multiplier += 220000000000000000000000000000000; costs.driftstation = Math.floor(costs.driftstation * 4.1); }
+                else if (type === 'multiverseanthem') { multiplier += 1500000000000000000000000000000000; costs.multiverseanthem = Math.floor(costs.multiverseanthem * 4.15); }
+                else if (type === 'infiniteseq') { multiplier += 11000000000000000000000000000000000; costs.infiniteseq = Math.floor(costs.infiniteseq * 4.2); }
+                else if (type === 'aetherdrive') { multiplier += 780000000000000000000000000000000000; costs.aetherdrive = Math.floor(costs.aetherdrive * 4.25); }
+                else if (type === 'rhythmcontinuum') { multiplier += 5400000000000000000000000000000000000; costs.rhythmcontinuum = Math.floor(costs.rhythmcontinuum * 4.3); }
+                else if (type === 'omnipresentscape') { multiplier += 39000000000000000000000000000000000000; costs.omnipresentscape = Math.floor(costs.omnipresentscape * 4.35); }
+                else if (type === 'supervocal') { multiplier += 280000000000000000000000000000000000000; costs.supervocal = Math.floor(costs.supervocal * 4.4); }
+                else if (type === 'driftgenesis') { multiplier += 2100000000000000000000000000000000000000; costs.driftgenesis = Math.floor(costs.driftgenesis * 4.45); }
+                else if (type === 'omegamatrix') { multiplier += 16000000000000000000000000000000000000000; costs.omegamatrix = Math.floor(costs.omegamatrix * 4.5); }
+                else if (type === 'reality808') { multiplier += 125000000000000000000000000000000000000000; costs.reality808 = Math.floor(costs.reality808 * 4.6); }
+
+updateUI();
+saveGameProgress();
+syncPlayerGameToFirebase();
+            }
+        }
+
+        function buyLuckyBlock(boxType) {
+            let cost = costs.luckyBlock;
+            if (boxType === 'beta') cost = costs.betaBlock;
+            if (boxType === 'gamma') cost = costs.gammaBlock;
+            if (boxType === 'delta') cost = costs.deltaBlock;
+            if (boxType === 'epsilon') cost = costs.epsilonBlock;
+
+            if (cash >= cost) {
+                cash -= cost;
+                let rolled = 'yara';
+
+                if (boxType === 'alpha') {
+                    const rand = Math.random() * 100;
+                    if (rand < 54) rolled = 'yara';
+                    else if (rand < 84) rolled = 'tikitiki';
+                    else if (rand < 94) rolled = 'alquimia';
+                    else if (rand < 99) rolled = 'badparenting';
+                    else rolled = 'notmyproblem';
+                } else if (boxType === 'beta') {
+                    const rand = Math.random() * 100;
+                    if (rand < 54) rolled = 'funkdobounce';
+                    else if (rand < 84) rolled = 'passobemsolto';
+                    else if (rand < 94) rolled = 'matadora';
+                    else if (rand < 99) rolled = 'takaladentro';
+                    else rolled = 'nobatidao';
+                } else if (boxType === 'gamma') {
+                    const rand = Math.random() * 100;
+                    if (rand < 54) rolled = 'losvoltaje';
+                    else if (rand < 84) rolled = 'acelerada';
+                    else if (rand < 94) rolled = 'nervyfunk';
+                    else if (rand < 99) rolled = 'vemvem';
+                    else rolled = 'mashaultrafunk';
+                } else if (boxType === 'delta') {
+                    const rand = Math.random() * 100;
+                    if (rand < 54) rolled = 'dystopia';
+                    else if (rand < 84) rolled = 'nuncamuda';
+                    else if (rand < 94) rolled = 'domer';
+                    else if (rand < 99) rolled = 'finalana';
+                    else rolled = 'breagadolove';
+                } else if (boxType === 'epsilon') {
+                    const rand = Math.random() * 100;
+                    if (rand < 54) rolled = 'sleepingcity';
+                    else if (rand < 84) rolled = 'herofunk';
+                    else if (rand < 94) rolled = 'lastchance';
+                    else if (rand < 99) rolled = 'safira';
+                    else rolled = 'horizonte';
+                }
+                
+                const isNew = !phonksDb[rolled].owned;
+phonksDb[rolled].owned = true;
+if (!isNew) {
+    phonksDb[rolled].level += 1;
+}
+
+const lvl = phonksDb[rolled].level;
+document.getElementById('reward-text').innerText = `${phonksDb[rolled].name} ${isNew ? '(NEW!)' : `(Duplicate! Now Level ${lvl})`}`;
+              
+                document.getElementById('reward-img').src = phonksDb[rolled].img;
+                document.getElementById('reward-modal').classList.add('show');
+                
+updateUI();
+saveGameProgress();
+syncPlayerGameToFirebase();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('reward-modal').classList.remove('show');
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('phonk-inventory-list');
+            container.innerHTML = '';
+            for (const [id, item] of Object.entries(phonksDb)) {
+                const card = document.createElement('div');
+                card.className = `phonk-card ${!item.owned ? 'locked' : ''} ${activeSkin === id ? 'equipped' : ''}`;
+                card.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <div style="font-size:0.85rem; font-weight:bold; margin-top:4px;">${item.name}</div>
+<div style="font-size:0.75rem; color: var(--accent-gold);">Level ${item.level} • +$${(item.baseValue * item.level).toLocaleString()}/click</div>
+                    ${!item.owned ? '<div class="lock-overlay">🔒 LOCKED</div>' : ''}
+                    <button class="action-btn" style="min-width:110px; font-size:0.75rem; padding:6px; margin-top:5px;" 
+                        ${!item.owned ? 'disabled' : ''} onclick="equipSkin('${id}')">
+                        ${activeSkin === id ? 'Equipped' : (item.owned ? 'Equip' : 'Locked')}
+                    </button>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function equipSkin(skinId) {
+            if (phonksDb[skinId] && phonksDb[skinId].owned) {
+                activeSkin = skinId;
+                mainImg.src = phonksDb[skinId].img;
+                syncAudioDeck();
+                renderInventory();
+                saveGameProgress();
+                syncPlayerGameToFirebase();
+            }
+        }
+
+        function triggerRebirth() {
+            if (cash >= costs.rebirth) {
+                rebirths += 1;
+                cash = 1; multiplier = 1;
+                costs.rebirth = Math.floor(costs.rebirth * 3.5);
+                
+                costs.bass = 50; costs.eq = 400; costs.xlr = 2500; costs.monitors = 15000; costs.sub = 85000; costs.mixer = 450000; costs.cowbell = 3200000; costs.vinyl = 25000000; costs.label = 180000000; costs.fl = 1200000000; costs.mastering = 8500000000; costs.residency = 60000000000; costs.festival = 450000000000; costs.tour = 3200000000000; costs.orchestra = 25000000000000; costs.satellite = 180000000000000; costs.megastructure = 1400000000000000; costs.matrix = 10000000000000000; costs.dimension = 75000000000000000;
+                costs.distortion = 500000000000000000; costs.syndicate = 3200000000000000000; costs.compressor = 22000000000000000000; costs.neonradio = 150000000000000000000; costs.plasmasynth = 950000000000000000000; costs.subreverb = 6500000000000000000000; costs.megaamp = 45000000000000000000000; costs.cloudcowbell = 320000000000000000000000; costs.soundwave = 2100000000000000000000000; costs.tectonic = 15000000000000000000000000; costs.orbitalvinyl = 110000000000000000000000000; costs.flarelimiter = 850000000000000000000000000; costs.nebulamod = 6200000000000000000000000000; costs.galaxyengine = 45000000000000000000000000000; costs.supercluster = 320000000000000000000000000000; costs.cowbelllaser = 2400000000000000000000000000000; costs.pitchshifter = 18000000000000000000000000000000; costs.chronoloop = 140000000000000000000000000000000; costs.dmsub = 1100000000000000000000000000000000; costs.singularitydeck = 85000000000000000000000000000000000; costs.driftstation = 650000000000000000000000000000000000; costs.multiverseanthem = 4900000000000000000000000000000000000; costs.infiniteseq = 38000000000000000000000000000000000000; costs.aetherdrive = 290000000000000000000000000000000000000; costs.rhythmcontinuum = 2200000000000000000000000000000000000000; costs.omnipresentscape = 18000000000000000000000000000000000000000; costs.supervocal = 140000000000000000000000000000000000000000; costs.driftgenesis = 1100000000000000000000000000000000000000000; costs.omegamatrix = 95000000000000000000000000000000000000000000; costs.reality808 = 850000000000000000000000000000000000000000000;
+
+                updateUI();
+                saveGameProgress();
+                syncPlayerGameToFirebase();
+            }
+        }
+
+        function updateUI() {
+            if(!currentUsername) return;
+            cashDisplay.innerText = "$" + cash.toLocaleString();
+            rebirthDisplay.innerText = "Rebirths: " + rebirths.toLocaleString();
+
+            const upgradeIds = [
+                'bass', 'eq', 'xlr', 'monitors', 'sub', 'mixer', 'cowbell', 'vinyl', 'label', 'fl', 'mastering', 'residency', 'festival', 'tour', 'orchestra', 'satellite', 'megastructure', 'matrix', 'dimension',
+                'distortion', 'syndicate', 'compressor', 'neonradio', 'plasmasynth', 'subreverb', 'megaamp', 'cloudcowbell', 'soundwave', 'tectonic', 'orbitalvinyl', 'flarelimiter', 'nebulamod', 'galaxyengine', 'supercluster', 'cowbelllaser', 'pitchshifter', 'chronoloop', 'dmsub', 'singularitydeck', 'driftstation', 'multiverseanthem', 'infiniteseq', 'aetherdrive', 'rhythmcontinuum', 'omnipresentscape', 'supervocal', 'driftgenesis', 'omegamatrix', 'reality808', 'rebirth'
+            ];
+            
+            upgradeIds.forEach(id => {
+                const btn = document.getElementById(`up-${id}`);
+                if (btn) {
+                    btn.innerText = `$${costs[id].toLocaleString()}`;
+                    btn.disabled = cash < costs[id];
+                }
+            });
+
+            document.getElementById('buy-block-btn').innerText = `$${costs.luckyBlock.toLocaleString()}`;
+            document.getElementById('buy-beta-btn').innerText = `$${costs.betaBlock.toLocaleString()}`;
+            document.getElementById('buy-gamma-btn').innerText = `$${costs.gammaBlock.toLocaleString()}`;
+            document.getElementById('buy-delta-btn').innerText = `$${costs.deltaBlock.toLocaleString()}`;
+            document.getElementById('buy-epsilon-btn').innerText = `$${costs.epsilonBlock.toLocaleString()}`;
+            
+            document.getElementById('buy-block-btn').disabled = cash < costs.luckyBlock;
+            document.getElementById('buy-beta-btn').disabled = cash < costs.betaBlock;
+            document.getElementById('buy-gamma-btn').disabled = cash < costs.gammaBlock;
+            document.getElementById('buy-delta-btn').disabled = cash < costs.deltaBlock;
+            document.getElementById('buy-epsilon-btn').disabled = cash < costs.epsilonBlock;
+        }
+
+        function createFloatingText(x, y, text) {
+            const popup = document.createElement('div');
+            popup.className = 'floating-text';
+            popup.innerText = text;
+            popup.style.left = `${x - 20}px`;
+            popup.style.top = `${y - 20}px`;
+            document.body.appendChild(popup);
+            setTimeout(() => { popup.remove(); }, 600);
+        }
+    </script>
+</body>
+</html>
