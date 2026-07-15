@@ -115,6 +115,7 @@
             align-items: center;
             padding-top: 12px;
             gap: 8px;
+            overflow-y: auto;
         }
 
         .server-icon {
@@ -130,6 +131,7 @@
             transition: all 0.2s ease-in-out;
             color: var(--accent-color);
             border: 2px solid transparent;
+            flex-shrink: 0;
         }
 
         .server-icon:hover, .server-icon.active {
@@ -153,6 +155,7 @@
             height: 2px;
             background-color: #374151;
             margin: 4px 0;
+            flex-shrink: 0;
         }
 
         /* 2. CHANNEL / DM COLUMN */
@@ -194,16 +197,6 @@
             align-items: center;
         }
 
-        .category-add-btn {
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .category-add-btn:hover {
-            color: var(--text-primary);
-        }
-
         .channel-item {
             display: flex;
             align-items: center;
@@ -242,11 +235,6 @@
             margin-right: 8px;
         }
 
-        .group-item::before {
-            content: "👥";
-            margin-right: 8px;
-        }
-
         /* Friends / Add Friends Navigation Button */
         .friends-nav-btn {
             display: flex;
@@ -278,7 +266,7 @@
             border-top: 1px solid rgba(255,255,255,0.08);
             border-bottom: 1px solid rgba(255,255,255,0.08);
             padding: 10px;
-            display: none; /* Hidden by default */
+            display: none; 
             flex-direction: column;
             gap: 8px;
         }
@@ -334,12 +322,19 @@
 
         /* User Footer Panel */
         .user-footer {
-            height: 52px;
             background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            padding: 8px 10px;
+            gap: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-footer-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 10px;
+            min-width: 0;
         }
 
         .user-footer-info {
@@ -349,16 +344,32 @@
             min-width: 0; 
         }
 
-        .logout-btn {
+        .user-footer-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .footer-action-btn {
             background: none;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 14px;
-            flex-shrink: 0;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .logout-btn:hover {
+        .footer-action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .footer-action-btn.logout-hover:hover {
             color: #ef4444;
         }
 
@@ -429,9 +440,85 @@
             color: var(--text-primary);
         }
 
+        /* --- MESSAGE CONTAINER WITH REACTION ANCHORS --- */
         .message {
             display: flex;
             gap: 16px;
+            position: relative; /* Setup anchor for hovered reaction toolbar */
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.1s;
+        }
+
+        .message:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Hover Reaction Trigger Bar */
+        .reaction-trigger-bar {
+            position: absolute;
+            right: 16px;
+            top: -12px;
+            background-color: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            display: none;
+            gap: 4px;
+            padding: 2px 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .message:hover .reaction-trigger-bar {
+            display: flex;
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .reaction-btn:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            transform: scale(1.2);
+        }
+
+        /* Active Emoji Badges Containers */
+        .reactions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .reaction-pill {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            user-select: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .reaction-pill:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Highlighted pill when the active user has reacted */
+        .reaction-pill.user-reacted {
+            background-color: rgba(6, 182, 212, 0.15);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         .user-avatar {
@@ -443,12 +530,17 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+            border: 2px solid transparent; /* Container for dynamic ring */
         }
 
         .message-content {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            width: 100%;
         }
 
         .message-info {
@@ -470,20 +562,65 @@
         .message-text {
             font-size: 15px;
             line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .message-image {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            object-fit: contain;
+            cursor: zoom-in;
         }
 
         .chat-input-container {
             padding: 0 16px 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Image Attachment Preview Bar */
+        .image-preview-bar {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--input-bg);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px dashed var(--accent-color);
+        }
+
+        .image-preview-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .image-preview-cancel {
+            background: var(--danger-color);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         .chat-input-wrapper {
             background-color: var(--input-bg);
             border-radius: 8px;
             padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .chat-input {
-            width: 100%;
+            flex: 1;
             background: transparent;
             border: none;
             outline: none;
@@ -492,6 +629,33 @@
         }
 
         .chat-input:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* File Upload Inputs (Hidden) */
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* Add Image Input Trigger Icon Button */
+        .attach-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attach-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .attach-btn:disabled {
             cursor: not-allowed;
             opacity: 0.5;
         }
@@ -520,6 +684,12 @@
             gap: 12px;
             padding: 6px 8px;
             border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .member-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .member-avatar {
@@ -533,6 +703,10 @@
             font-size: 12px;
             font-weight: bold;
             position: relative;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+            border: 2px solid transparent; /* Base for custom ring */
         }
 
         .status-dot {
@@ -541,8 +715,8 @@
             background-color: #10b981;
             border-radius: 50%;
             position: absolute;
-            bottom: 0;
-            right: 0;
+            bottom: -2px;
+            right: -2px;
             border: 2px solid var(--bg-members);
         }
 
@@ -578,7 +752,7 @@
             color: var(--accent-color);
         }
 
-        .modal-content input {
+        .modal-content input, .modal-content textarea {
             width: 100%;
             padding: 10px;
             background-color: var(--bg-servers);
@@ -586,6 +760,12 @@
             color: white;
             border-radius: 4px;
             outline: none;
+            font-family: inherit;
+        }
+
+        .modal-content textarea {
+            resize: none;
+            height: 80px;
         }
 
         .friend-checkbox-list {
@@ -639,49 +819,236 @@
             opacity: 0.9;
         }
 
+        /* --- DISCORD STYLE PROFILE CARD MODAL --- */
+        .profile-card {
+            background-color: #181f38;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 340px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .profile-banner {
+            height: 120px;
+            background-color: var(--accent-purple);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        /* Dynamic overlap container alignment */
+        .profile-header-layout {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-top: -60px; /* Pulls PFP & Name up to overlap banner cleanly */
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-pfp {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #4b5563;
+            border: 4px solid #181f38; /* Thick gap border */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+
+        .profile-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 6px; /* Perfect horizontal alignment beside overlapping PFP */
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .profile-divider {
+            height: 1px;
+            background-color: rgba(255,255,255,0.08);
+        }
+
+        .profile-section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .profile-bio-text {
+            font-size: 13px;
+            color: #d1d5db;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Settings Preview Grid */
+        .settings-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background: none;
+        }
+
         /* Invisible Audio Container for WebRTC Stream Playback */
         #remote-audio-container {
             display: none;
+        }
+
+        /* --- PFP ADJUSTER CROPPER MODAL STYLES --- */
+        #pfpAdjusterModal .modal-content {
+            background-color: #1e1e1e;
+            color: white;
+            width: 360px;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+        }
+
+        .cropper-workspace {
+            width: 280px;
+            height: 280px;
+            position: relative;
+            overflow: hidden;
+            background-color: #000;
+            border-radius: 4px;
+            margin-top: 10px;
+            user-select: none;
+        }
+
+        /* The guiding circle mask overlay */
+        .cropper-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--accent-color);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #cropperImage {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            transform-origin: center center;
+        }
+
+        .zoom-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .zoom-icon-btn {
+            font-size: 22px;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+
+        .zoom-icon-btn:hover {
+            color: white;
+        }
+
+        .pfp-slider {
+            flex: 1;
+            cursor: pointer;
+            height: 6px;
+            background: #4b5563;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .pfp-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- Invisible element to hold remote user audio tags -->
-    <div id="remote-audio-container"></div>
-
-    <!-- AUTHENTICATION LAYER -->
+    <!-- AUTHENTICATION SCREEN -->
     <div class="auth-container" id="authScreen">
         <div class="auth-box">
-            <h2 id="authTitle">Welcome to NJ Cord</h2>
-            <input type="text" id="authUsername" placeholder="Enter Username">
-            <input type="password" id="authPassword" placeholder="Enter Password">
-            <button id="authBtn">Log In</button>
-            <div class="auth-toggle" id="authToggle">Don't have an account? <span>Register</span></div>
+            <h2 id="authTitle">Login to NJ Cord</h2>
+            <input type="text" id="authUsername" placeholder="Username" required>
+            <input type="password" id="authPassword" placeholder="Password" required>
+            <button id="authBtn">Sign In</button>
+            <div class="auth-toggle" id="authToggle">Don't have an account? <span>Register instead</span></div>
         </div>
     </div>
 
-    <!-- ADD FRIEND MODAL -->
+    <!-- ADD FRIEND POPUP MODAL -->
     <div class="modal" id="addFriendModal">
         <div class="modal-content">
-            <h3>Add a Friend</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Enter your friend's exact username below to add them to your Direct Messages.</p>
-            <input type="text" id="addFriendUsernameInput" placeholder="Friend's username...">
+            <h3>Add Friend</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Enter the exact username of the friend you want to add.</p>
+            <input type="text" id="addFriendUsernameInput" placeholder="Friend's username">
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="closeAddFriendModalBtn">Cancel</button>
-                <button class="btn btn-confirm" id="addFriendSubmitBtn">Send Request</button>
+                <button class="btn btn-confirm" id="addFriendSubmitBtn">Add Friend</button>
             </div>
         </div>
     </div>
 
-    <!-- CREATE GROUP MODAL -->
+    <!-- CREATE GROUP CHAT POPUP MODAL -->
     <div class="modal" id="groupModal">
         <div class="modal-content">
             <h3>Create Group Chat</h3>
-            <input type="text" id="groupNameInput" placeholder="Group Name...">
-            <div style="font-size: 12px; color: var(--text-muted); font-weight: bold;">SELECT FRIENDS</div>
+            <input type="text" id="groupNameInput" placeholder="Group Chat Name">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: bold; margin-top: 8px;">ADD MEMBERS</div>
             <div class="friend-checkbox-list" id="groupModalFriendsList">
-                <!-- Checkboxes populated dynamically -->
+                <!-- Javascript will inject list of checkboxes of current friends -->
             </div>
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="closeGroupModalBtn">Cancel</button>
@@ -690,26 +1057,22 @@
         </div>
     </div>
 
-    <!-- GROUP SETTINGS MODAL (Owner Only) -->
+    <!-- GROUP CHAT SETTINGS / MANAGE MEMBERS MODAL -->
     <div class="modal" id="groupSettingsModal">
-        <div class="modal-content">
-            <h3>Group Settings (Owner)</h3>
-            
-            <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="modal-content" style="width: 400px;">
+            <h3>Group Settings</h3>
+            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
                 <label style="font-size: 12px; color: var(--text-muted); font-weight: bold;">RENAME GROUP</label>
-                <input type="text" id="editGroupNameInput">
+                <input type="text" id="editGroupNameInput" placeholder="New Group Name">
             </div>
-
             <div style="font-size: 12px; color: var(--text-muted); font-weight: bold; margin-top: 8px;">ADD MEMBERS</div>
             <div class="friend-checkbox-list" id="settingsAddFriendsList">
                 <!-- Checkboxes of friends who aren't in yet -->
             </div>
-
             <div style="font-size: 12px; color: var(--text-muted); font-weight: bold; margin-top: 8px;">REMOVE MEMBERS</div>
             <div class="friend-checkbox-list" id="settingsRemoveMembersList">
                 <!-- Current members with remove buttons -->
             </div>
-
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="closeSettingsModalBtn">Close</button>
                 <button class="btn btn-confirm" id="saveGroupSettingsBtn">Save Changes</button>
@@ -717,13 +1080,104 @@
         </div>
     </div>
 
+    <!-- MAIN USER SETTINGS MODAL -->
+    <div class="modal" id="userSettingsModal">
+        <div class="modal-content" style="width: 420px; max-height: 90vh; overflow-y: auto;">
+            <h3>User Settings</h3>
+
+            <!-- Customize Bio -->
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 12px; color: var(--text-muted); font-weight: bold;">ABOUT ME (BIO)</label>
+                <textarea id="settingsBioInput" placeholder="Tell everyone about yourself..."></textarea>
+            </div>
+
+            <!-- Profile Ring Color Selection -->
+            <div class="color-picker-wrapper">
+                <input type="color" id="settingsRingColorInput" value="#000000">
+                <div style="display: flex; flex-direction: column;">
+                    <label style="font-size: 12px; color: var(--text-muted); font-weight: bold;">AVATAR RING COLOR</label>
+                    <span style="font-size: 11px; color: var(--text-muted);">Choose a color ring wrapper for your avatar</span>
+                </div>
+            </div>
+
+            <!-- Profile Picture Upload -->
+            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                <label style="font-size: 12px; color: var(--text-muted); font-weight: bold;">PROFILE PICTURE (PFP)</label>
+                <button class="btn btn-cancel" id="settingsPfpTrigger" style="width: 100%; text-align: left; padding: 10px;">👤 Upload New Profile Picture</button>
+                <input type="file" id="settingsPfpInput" class="hidden-file-input" accept="image/*">
+            </div>
+
+            <!-- Profile Banner Upload -->
+            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 12px;">
+                <label style="font-size: 12px; color: var(--text-muted); font-weight: bold;">PROFILE BANNER</label>
+                <button class="btn btn-cancel" id="settingsBannerTrigger" style="width: 100%; text-align: left; padding: 10px;">🖼️ Upload New Profile Banner</button>
+                <input type="file" id="settingsBannerInput" class="hidden-file-input" accept="image/*">
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 16px;">
+                <button class="btn btn-cancel" id="closeUserSettingsBtn">Cancel</button>
+                <button class="btn btn-confirm" id="saveUserSettingsBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE PICTURE ADJUSTER CROP MODAL -->
+    <div class="modal" id="pfpAdjusterModal">
+        <div class="modal-content">
+            <h3>Adjust Your Avatar</h3>
+            <p style="font-size: 12px; color: var(--text-muted);">Drag and zoom your image to fit inside the circular frame</p>
+            
+            <div class="cropper-workspace" id="cropperWorkspace">
+                <img src="" alt="Cropping preview" id="cropperImage">
+                <div class="cropper-mask"></div>
+            </div>
+
+            <!-- Zoom controls slider -->
+            <div class="zoom-slider-container">
+                <span class="zoom-icon-btn" id="zoomOutBtn">➖</span>
+                <input type="range" class="pfp-slider" id="pfpZoomSlider" min="10" max="300" value="100">
+                <span class="zoom-icon-btn" id="zoomInBtn">➕</span>
+            </div>
+
+            <div class="modal-buttons" style="width: 100%; justify-content: center; gap: 16px; margin-top: 16px;">
+                <button class="btn btn-cancel" id="cancelPfpAdjustBtn" style="flex: 1;">Cancel</button>
+                <button class="btn btn-confirm" id="savePfpAdjustBtn" style="flex: 1;">Apply Crop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE VIEW CARD MODAL -->
+    <div class="modal" id="profileViewModal">
+        <div class="profile-card">
+            <div class="profile-banner" id="viewBanner"></div>
+            <div class="profile-body">
+                <!-- Flex layout side-by-side with overlapping PFP -->
+                <div class="profile-header-layout">
+                    <!-- PFP inside custom colored ring border wrapper -->
+                    <div class="profile-pfp" id="viewPfp" style="border-color: #181f38;">U</div>
+                    <div class="profile-name" id="viewUsername">User</div>
+                </div>
+                <div class="profile-divider"></div>
+                <div>
+                    <div class="profile-section-title">About Me</div>
+                    <div class="profile-bio-text" id="viewBio">This user hasn't set a bio yet.</div>
+                </div>
+                <div class="modal-buttons" style="margin-top: 8px;">
+                    <button class="btn btn-cancel" style="padding: 6px 12px;" id="closeProfileViewBtn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN APP LAYOUT -->
     <div class="app-container">
-        
         <!-- 1. SERVER COLUMN -->
         <div class="server-sidebar">
             <div class="server-icon dm-logo active" id="homeBtn" title="Direct Messages">💬</div>
             <div class="separator"></div>
+            <!-- Dynamic Group Chats Server Icons Container -->
+            <div id="sidebarGroupsContainer" style="display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%;"></div>
+            <div class="separator" id="groupSeparator" style="display: none;"></div>
             <div class="server-icon nj-logo" id="njServerBtn" title="NJ Cord Server">NJ</div>
         </div>
 
@@ -731,7 +1185,7 @@
         <div class="channel-sidebar">
             <div class="server-header" id="sidebarHeader">Direct Messages</div>
             <div class="channel-list" id="sidebarItems">
-                <!-- Items dynamically populated by Javascript -->
+                <!-- Items dynamically populated by Javascript based on view context -->
             </div>
 
             <!-- --- ACTIVE VC STATUS PANEL --- -->
@@ -749,11 +1203,17 @@
 
             <!-- Logged In User Info Footer -->
             <div class="user-footer">
-                <div class="user-footer-info">
-                    <div class="member-avatar" id="footerAvatar" style="background-color: var(--accent-purple);">U</div>
-                    <span id="footerUsername" style="font-weight: bold; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Loading...</span>
+                <div class="user-footer-top">
+                    <div class="user-footer-info">
+                        <!-- Standard Non-clickable static avatar -->
+                        <div class="member-avatar" id="footerAvatar" style="background-color: var(--accent-purple);">U</div>
+                        <span id="footerUsername" style="font-weight: bold; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 100px;">Loading...</span>
+                    </div>
+                    <div class="user-footer-actions">
+                        <button class="footer-action-btn" id="settingsBtn" title="User Settings">⚙️</button>
+                        <button class="footer-action-btn logout-hover" id="logoutBtn" title="Logout">🚪</button>
+                    </div>
                 </div>
-                <button class="logout-btn" id="logoutBtn">Logout</button>
             </div>
         </div>
 
@@ -763,16 +1223,28 @@
                 <div class="chat-header-left" id="chatHeader">
                     <span>💬</span> Friends
                 </div>
+                <!-- Group settings trigger visible only inside active group view -->
                 <button class="group-settings-btn" id="groupSettingsTrigger" style="display: none;" title="Group Settings">⚙️</button>
             </div>
             
             <div class="message-history" id="messageHistory">
-                <!-- Messages will load dynamically here -->
+                <!-- Dynamic messages populate here -->
             </div>
 
             <div class="chat-input-container">
+                <!-- Image attachment preview row -->
+                <div class="image-preview-bar" id="imagePreviewBar">
+                    <img src="" alt="Attachment Preview" class="image-preview-thumb" id="imagePreviewThumb">
+                    <div style="flex:1; font-size:12px; color: var(--text-muted);">Ready to send image</div>
+                    <button class="image-preview-cancel" id="cancelImageUploadBtn">Remove</button>
+                </div>
+
                 <div class="chat-input-wrapper">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="Message..." disabled>
+                    <!-- File upload logic hook -->
+                    <button class="attach-btn" id="attachImageBtn" title="Attach Image" disabled>➕</button>
+                    <input type="file" id="chatImageUploadInput" class="hidden-file-input" accept="image/*">
+                    
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Select a friend to start chatting!" disabled>
                 </div>
             </div>
         </div>
@@ -780,18 +1252,20 @@
         <!-- 4. MEMBER LIST COLUMN -->
         <div class="member-sidebar">
             <div class="member-group-title" id="memberListHeader">Friends</div>
-            <div id="memberList">
-                <!-- Dynamically populated online users -->
+            <div class="channel-list" id="memberList">
+                <!-- DMs will render standard active friends list, Group/Server lists group members -->
             </div>
         </div>
-
     </div>
 
-    <!-- FIREBASE SERVICES -->
+    <!-- Hidden audio playback element container for WebRTC calls -->
+    <div id="remote-audio-container"></div>
+
+    <!-- FIREBASE AND CLIENT LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, get, child, set, update, remove, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, update, onValue, push, remove, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCvGp_PJhUrJaYm5YcYL_Ii-bsepdq-CzE",
@@ -811,15 +1285,21 @@
         // State Tracking
         let currentUser = null;
         let isRegistering = false;
-        let currentView = 'dms'; // 'dms' or 'nj-server'
+        let currentView = 'dms'; // 'dms', 'nj-server', or 'group'
         let currentTarget = null; // Channel name, DM Target UID, Group ID, or null
         let isGroupChat = false;
         let activeGroupData = null; // Cache details about selected group
+        let attachedImageBase64 = null; // Holds the encoded attached image for sending
+
+        // Settings Upload Image caches (staged before clicking Save)
+        let stagedPfpBase64 = null;
+        let stagedBannerBase64 = null;
 
         // --- WEBRTC / VOICE CHAT STATE ---
         let localStream = null;
         let peerConnections = {}; // Map of userId -> RTCPeerConnection
         let isJoinedToVoice = false;
+
         const iceServers = {
             iceServers: [
                 { urls: 'stun:stun1.l.google.com:19302' },
@@ -835,94 +1315,160 @@
         const authBtn = document.getElementById('authBtn');
         const authToggle = document.getElementById('authToggle');
         const logoutBtn = document.getElementById('logoutBtn');
-        
+        const settingsBtn = document.getElementById('settingsBtn');
         const homeBtn = document.getElementById('homeBtn');
-        const njServerBtn = document.getElementById('njServerBtn');
         const sidebarHeader = document.getElementById('sidebarHeader');
         const sidebarItems = document.getElementById('sidebarItems');
         const chatHeader = document.getElementById('chatHeader');
-        const messageHistory = document.getElementById('messageHistory');
         const chatInput = document.getElementById('chatInput');
-        const memberList = document.getElementById('memberList');
+        const messageHistory = document.getElementById('messageHistory');
         const memberListHeader = document.getElementById('memberListHeader');
-        const footerUsername = document.getElementById('footerUsername');
-        const footerAvatar = document.getElementById('footerAvatar');
-
-        // VC DOM
-        const vcPanel = document.getElementById('vcPanel');
-        const vcStatusText = document.getElementById('vcStatusText');
-        const vcHangupBtn = document.getElementById('vcHangupBtn');
+        const memberList = document.getElementById('memberList');
+        const sidebarGroupsContainer = document.getElementById('sidebarGroupsContainer');
+        const groupSeparator = document.getElementById('groupSeparator');
+        const groupSettingsTrigger = document.getElementById('groupSettingsTrigger');
         const remoteAudioContainer = document.getElementById('remote-audio-container');
 
-        // Modals DOM
+        // Image attachments DOM elements
+        const attachImageBtn = document.getElementById('attachImageBtn');
+        const chatImageUploadInput = document.getElementById('chatImageUploadInput');
+        const imagePreviewBar = document.getElementById('imagePreviewBar');
+        const imagePreviewThumb = document.getElementById('imagePreviewThumb');
+        const cancelImageUploadBtn = document.getElementById('cancelImageUploadBtn');
+
+        // Add Friend Modal DOM
         const addFriendModal = document.getElementById('addFriendModal');
         const addFriendUsernameInput = document.getElementById('addFriendUsernameInput');
         const closeAddFriendModalBtn = document.getElementById('closeAddFriendModalBtn');
         const addFriendSubmitBtn = document.getElementById('addFriendSubmitBtn');
 
+        // Create Group Modal DOM
         const groupModal = document.getElementById('groupModal');
         const groupNameInput = document.getElementById('groupNameInput');
         const groupModalFriendsList = document.getElementById('groupModalFriendsList');
         const closeGroupModalBtn = document.getElementById('closeGroupModalBtn');
         const createGroupSubmitBtn = document.getElementById('createGroupSubmitBtn');
 
+        // Group settings Modal DOM
         const groupSettingsModal = document.getElementById('groupSettingsModal');
-        const groupSettingsTrigger = document.getElementById('groupSettingsTrigger');
         const editGroupNameInput = document.getElementById('editGroupNameInput');
         const settingsAddFriendsList = document.getElementById('settingsAddFriendsList');
         const settingsRemoveMembersList = document.getElementById('settingsRemoveMembersList');
         const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
         const saveGroupSettingsBtn = document.getElementById('saveGroupSettingsBtn');
 
-        // Helper function to turn a simple username into a safe virtual email address for Firebase
+        // Footer standard details DOM
+        const footerUsername = document.getElementById('footerUsername');
+        const footerAvatar = document.getElementById('footerAvatar');
+
+        // User Settings Modal DOM
+        const userSettingsModal = document.getElementById('userSettingsModal');
+        const settingsBioInput = document.getElementById('settingsBioInput');
+        const settingsRingColorInput = document.getElementById('settingsRingColorInput');
+        const settingsPfpTrigger = document.getElementById('settingsPfpTrigger');
+        const settingsPfpInput = document.getElementById('settingsPfpInput');
+        const settingsBannerTrigger = document.getElementById('settingsBannerTrigger');
+        const settingsBannerInput = document.getElementById('settingsBannerInput');
+        const closeUserSettingsBtn = document.getElementById('closeUserSettingsBtn');
+        const saveUserSettingsBtn = document.getElementById('saveUserSettingsBtn');
+
+        // Profile Picture Adjuster Modal DOM
+        const pfpAdjusterModal = document.getElementById('pfpAdjusterModal');
+        const cropperWorkspace = document.getElementById('cropperWorkspace');
+        const cropperImage = document.getElementById('cropperImage');
+        const pfpZoomSlider = document.getElementById('pfpZoomSlider');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const cancelPfpAdjustBtn = document.getElementById('cancelPfpAdjustBtn');
+        const savePfpAdjustBtn = document.getElementById('savePfpAdjustBtn');
+
+        // Profile View Card Modal DOM
+        const profileViewModal = document.getElementById('profileViewModal');
+        const viewBanner = document.getElementById('viewBanner');
+        const viewPfp = document.getElementById('viewPfp');
+        const viewUsername = document.getElementById('viewUsername');
+        const viewBio = document.getElementById('viewBio');
+        const closeProfileViewBtn = document.getElementById('closeProfileViewBtn');
+
+        // Helper function to turn a username into a safe virtual email
         function getVirtualEmail(username) {
             const safeName = username.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
             return `${safeName}@njcord.local`;
         }
 
-        // Toggle Login / Register UI
-        authToggle.addEventListener('click', () => {
+        // Helper: Real-time username lookup
+        function getRealtimeUsername(uid, callback) {
+            onValue(ref(db, `users/${uid}/username`), (snapshot) => {
+                const name = snapshot.val();
+                callback(name || "Unknown User");
+            }, { onlyOnce: true });
+        }
+
+        // Helper: Fetch complete profile properties at once
+        function getRealtimeProfile(uid, callback) {
+            onValue(ref(db, `users/${uid}`), (snapshot) => {
+                const data = snapshot.val();
+                callback(data || {});
+            }, { onlyOnce: true });
+        }
+
+        // --- AUTHENTICATION FLOW HANDLERS ---
+        authToggle.onclick = () => {
             isRegistering = !isRegistering;
             if (isRegistering) {
-                authTitle.innerText = "Register for NJ Cord";
-                authBtn.innerText = "Sign Up";
-                authToggle.innerHTML = "Already have an account? <span>Login</span>";
+                authTitle.innerText = "Register to NJ Cord";
+                authBtn.innerText = "Register Account";
+                authToggle.innerHTML = "Already have an account? <span>Login instead</span>";
             } else {
-                authTitle.innerText = "Welcome to NJ Cord";
-                authBtn.innerText = "Log In";
-                authToggle.innerHTML = "Don't have an account? <span>Register</span>";
+                authTitle.innerText = "Login to NJ Cord";
+                authBtn.innerText = "Sign In";
+                authToggle.innerHTML = "Don't have an account? <span>Register instead</span>";
             }
-        });
+        };
 
-        // Register or Login Logic
-        authBtn.addEventListener('click', () => {
+        authBtn.onclick = () => {
             const username = authUsername.value.trim();
             const password = authPassword.value;
-
-            if (!username || !password) return alert("Please fill in both fields.");
-            if (username.length < 3) return alert("Username must be at least 3 characters.");
-            if (password.length < 6) return alert("Password must be at least 6 characters.");
+            if (!username || !password) return alert("Please fill in all details!");
 
             const virtualEmail = getVirtualEmail(username);
 
             if (isRegistering) {
-                createUserWithEmailAndPassword(auth, virtualEmail, password)
-                    .then((userCredential) => {
-                        updateProfile(userCredential.user, { displayName: username }).then(() => {
-                            set(ref(db, 'users/' + userCredential.user.uid), {
+                // Check if username is already taken
+                get(ref(db, 'users')).then((snapshot) => {
+                    const users = snapshot.val() || {};
+                    let taken = false;
+                    for (let id in users) {
+                        if (users[id].username && users[id].username.toLowerCase() === username.toLowerCase()) {
+                            taken = true; break;
+                        }
+                    }
+                    if (taken) {
+                        alert("This username is already taken! Please choose a different one.");
+                        return;
+                    }
+
+                    createUserWithEmailAndPassword(auth, virtualEmail, password)
+                        .then((cred) => {
+                            updateProfile(cred.user, { displayName: username });
+                            set(ref(db, `users/${cred.user.uid}`), {
                                 username: username,
-                                uid: userCredential.user.uid
+                                uid: cred.user.uid,
+                                pfp: "",
+                                bio: "",
+                                ringColor: "#000000",
+                                banner: ""
                             });
                             authScreen.style.display = 'none';
+                        })
+                        .catch((err) => {
+                            if (err.code === "auth/email-already-in-use") {
+                                alert("Username already registered under a similar name!");
+                            } else {
+                                alert(err.message);
+                            }
                         });
-                    })
-                    .catch((err) => {
-                        if (err.code === "auth/email-already-in-use") {
-                            alert("That username is already taken!");
-                        } else {
-                            alert(err.message);
-                        }
-                    });
+                });
             } else {
                 signInWithEmailAndPassword(auth, virtualEmail, password)
                     .then(() => {
@@ -936,7 +1482,7 @@
                         }
                     });
             }
-        });
+        };
 
         // Track Login State changes
         onAuthStateChanged(auth, (user) => {
@@ -944,195 +1490,567 @@
                 currentUser = user;
                 authScreen.style.display = 'none';
 
-                // Look up user details in DB & immediately populate bottom footer
                 onValue(ref(db, `users/${user.uid}`), (snapshot) => {
                     const userData = snapshot.val();
                     if (userData && userData.username) {
                         footerUsername.innerText = userData.username;
-                        footerAvatar.innerText = userData.username.substring(0, 2).toUpperCase();
+                        // Handle Ring Color wrapper border in bottom left
+                        const ringColor = userData.ringColor || "#000000";
+                        footerAvatar.style.borderColor = ringColor;
+
+                        if (userData.pfp) {
+                            footerAvatar.style.backgroundImage = `url(${userData.pfp})`;
+                            footerAvatar.innerText = "";
+                        } else {
+                            footerAvatar.style.backgroundImage = "none";
+                            footerAvatar.innerText = userData.username.substring(0, 2).toUpperCase();
+                        }
                     } else if (user.displayName) {
                         footerUsername.innerText = user.displayName;
                         footerAvatar.innerText = user.displayName.substring(0, 2).toUpperCase();
-                        // Sync missing DB node
                         set(ref(db, `users/${user.uid}`), {
                             username: user.displayName,
-                            uid: user.uid
+                            uid: user.uid,
+                            pfp: "",
+                            bio: "",
+                            ringColor: "#000000",
+                            banner: ""
                         });
                     } else {
-                        footerUsername.innerText = "User";
-                        footerAvatar.innerText = "U";
+                        footerUsername.innerText = "No Name Setup";
                     }
                 });
 
-                homeBtn.click();
-                loadUsersList();
+                initApp();
             } else {
-                leaveVoiceChannel(); // Ensure mic is hung up on logout
                 currentUser = null;
                 authScreen.style.display = 'flex';
-                sidebarItems.innerHTML = "";
-                messageHistory.innerHTML = "";
-                memberList.innerHTML = "";
-                footerUsername.innerText = "Loading...";
-                footerAvatar.innerText = "U";
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth);
+        logoutBtn.onclick = () => {
+            leaveVoiceChannel();
+            signOut(auth).then(() => {
+                window.location.reload();
+            });
+        };
+
+        // --- MAIN USER SETTINGS EDIT LOGIC ---
+        settingsBtn.onclick = () => {
+            stagedPfpBase64 = null;
+            stagedBannerBase64 = null;
+            settingsPfpTrigger.innerText = "👤 Upload New Profile Picture";
+            settingsBannerTrigger.innerText = "🖼️ Upload New Profile Banner";
+
+            get(ref(db, `users/${currentUser.uid}`)).then((snapshot) => {
+                const data = snapshot.val() || {};
+                settingsBioInput.value = data.bio || "";
+                settingsRingColorInput.value = data.ringColor || "#000000";
+                userSettingsModal.style.display = "flex";
+            });
+        };
+
+        settingsPfpTrigger.onclick = () => settingsPfpInput.click();
+        settingsBannerTrigger.onclick = () => settingsBannerInput.click();
+
+        // Staging and cropping avatar picture selected for PFP
+        settingsPfpInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("This image is too large! Please choose an image smaller than 2MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                // Load base64 into the cropper preview
+                cropperImage.src = event.target.result;
+                // Open the custom Crop Adjuster Modal on top of settings
+                pfpAdjusterModal.style.display = "flex";
+            };
+            reader.readAsDataURL(file);
         });
+
+        // Cropper Logic state variables
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        let originalImgWidth = 0;
+        let originalImgHeight = 0;
+
+        // Handle scaling and centering on image load inside cropper
+        cropperImage.onload = () => {
+            // Reset position configurations
+            translateX = 0;
+            translateY = 0;
+            scale = 1;
+            pfpZoomSlider.value = 100;
+
+            // Fit the image dynamically preserving natural aspect ratio
+            const workspaceSize = 280;
+            originalImgWidth = cropperImage.naturalWidth;
+            originalImgHeight = cropperImage.naturalHeight;
+
+            if (originalImgWidth > originalImgHeight) {
+                cropperImage.style.height = workspaceSize + "px";
+                cropperImage.style.width = "auto";
+            } else {
+                cropperImage.style.width = workspaceSize + "px";
+                cropperImage.style.height = "auto";
+            }
+
+            // Let client rect render, then center perfectly in workspace box
+            setTimeout(() => {
+                const imgBounds = cropperImage.getBoundingClientRect();
+                const workspaceBounds = cropperWorkspace.getBoundingClientRect();
+                translateX = (workspaceBounds.width - imgBounds.width) / 2;
+                translateY = (workspaceBounds.height - imgBounds.height) / 2;
+                updateCropperTransform();
+            }, 50);
+        };
+
+        function updateCropperTransform() {
+            cropperImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        }
+
+        // Live Drag & Pan Event Listeners for Avatar Cropper Workspace
+        cropperWorkspace.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            cropperWorkspace.style.cursor = "grabbing";
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateCropperTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                cropperWorkspace.style.cursor = "move";
+            }
+        });
+
+        // Zoom Slider handler
+        pfpZoomSlider.addEventListener('input', (e) => {
+            scale = e.target.value / 100;
+            updateCropperTransform();
+        });
+
+        // Increment zoom buttons
+        zoomInBtn.onclick = () => {
+            let newVal = Math.min(300, parseInt(pfpZoomSlider.value) + 15);
+            pfpZoomSlider.value = newVal;
+            scale = newVal / 100;
+            updateCropperTransform();
+        };
+
+        zoomOutBtn.onclick = () => {
+            let newVal = Math.max(10, parseInt(pfpZoomSlider.value) - 15);
+            pfpZoomSlider.value = newVal;
+            scale = newVal / 100;
+            updateCropperTransform();
+        };
+
+        cancelPfpAdjustBtn.onclick = () => {
+            pfpAdjusterModal.style.display = "none";
+            settingsPfpInput.value = "";
+        };
+
+        // Crop confirmation and canvas mapping
+        savePfpAdjustBtn.onclick = () => {
+            const canvas = document.createElement('canvas');
+            // Circular output boundary matching size of standard high-res avatar
+            canvas.width = 250;
+            canvas.height = 250;
+            const ctx = canvas.getContext('2d');
+
+            // Calculate current relative bounding layout coordinates
+            const workspaceBounds = cropperWorkspace.getBoundingClientRect();
+            const imgBounds = cropperImage.getBoundingClientRect();
+
+            // Match coordinates of zoomed/dragged element relative to canvas context mapping
+            const drawX = (imgBounds.left - workspaceBounds.left) * (250 / 280);
+            const drawY = (imgBounds.top - workspaceBounds.top) * (250 / 280);
+            const drawW = imgBounds.width * (250 / 280);
+            const drawH = imgBounds.height * (250 / 280);
+
+            // Draw clean canvas state & export to staging variable
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, 0, 250, 250);
+            ctx.drawImage(cropperImage, drawX, drawY, drawW, drawH);
+
+            stagedPfpBase64 = canvas.toDataURL('image/jpeg', 0.92);
+            settingsPfpTrigger.innerText = "📤 PFP Staged! (Click Save Changes)";
+            pfpAdjusterModal.style.display = "none";
+        };
+
+        // Staging Banner Image
+        settingsBannerInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("This image is too large! Please choose an image smaller than 2MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                stagedBannerBase64 = event.target.result;
+                settingsBannerTrigger.innerText = "🖼️ Banner Staged! (Click Save Changes)";
+            };
+            reader.readAsDataURL(file);
+        });
+
+        closeUserSettingsBtn.onclick = () => userSettingsModal.style.display = "none";
+
+        saveUserSettingsBtn.onclick = () => {
+            const updates = {};
+            updates[`users/${currentUser.uid}/bio`] = settingsBioInput.value;
+            updates[`users/${currentUser.uid}/ringColor`] = settingsRingColorInput.value;
+
+            if (stagedPfpBase64) {
+                updates[`users/${currentUser.uid}/pfp`] = stagedPfpBase64;
+            }
+            if (stagedBannerBase64) {
+                updates[`users/${currentUser.uid}/banner`] = stagedBannerBase64;
+            }
+
+            update(ref(db), updates).then(() => {
+                userSettingsModal.style.display = "none";
+                alert("Profile changes successfully updated!");
+            }).catch(err => alert("Error saving details: " + err.message));
+        };
+
+        // --- WINDOW/POPUP CLICK HANDLER FOR DYNAMIC USER PROFILES ---
+        window.viewUserProfile = function(uid) {
+            getRealtimeProfile(uid, (profileData) => {
+                const uName = profileData.username || "User";
+                viewUsername.innerText = uName;
+                viewBio.innerText = profileData.bio || "This user hasn't set an about me yet.";
+
+                // Set custom ring color on view profile card
+                const ringColor = profileData.ringColor || "#181f38";
+                viewPfp.style.borderColor = ringColor;
+
+                // Load custom profile banner, fallback to purple background accent
+                if (profileData.banner) {
+                    viewBanner.style.backgroundImage = `url(${profileData.banner})`;
+                    viewBanner.style.backgroundColor = "transparent";
+                } else {
+                    viewBanner.style.backgroundImage = "none";
+                    viewBanner.style.backgroundColor = "var(--accent-purple)";
+                }
+
+                // Load avatar image, fallback to initials
+                if (profileData.pfp) {
+                    viewPfp.style.backgroundImage = `url(${profileData.pfp})`;
+                    viewPfp.innerText = "";
+                } else {
+                    viewPfp.style.backgroundImage = "none";
+                    viewPfp.innerText = uName.substring(0, 2).toUpperCase();
+                }
+
+                profileViewModal.style.display = "flex";
+            });
+        };
+
+        closeProfileViewBtn.onclick = () => profileViewModal.style.display = "none";
+
+        // --- CHAT IMAGE ATTACHMENT LOGIC ---
+        attachImageBtn.addEventListener('click', () => {
+            if (chatInput.disabled) return;
+            chatImageUploadInput.click();
+        });
+
+        chatImageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 1.2 * 1024 * 1024) {
+                alert("This image is too large! Please choose an image smaller than 1MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                attachedImageBase64 = event.target.result;
+                imagePreviewThumb.src = attachedImageBase64;
+                imagePreviewBar.style.display = "flex";
+                chatInput.placeholder = "Add a caption, then press Enter to send!";
+                chatInput.focus();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        cancelImageUploadBtn.addEventListener('click', () => {
+            resetImageAttachment();
+        });
+
+        function resetImageAttachment() {
+            attachedImageBase64 = null;
+            chatImageUploadInput.value = "";
+            imagePreviewThumb.src = "";
+            imagePreviewBar.style.display = "none";
+            if (chatInput.disabled) {
+                chatInput.placeholder = "Select a friend to start chatting!";
+            } else {
+                chatInput.placeholder = "Message...";
+            }
+        }
 
         // --- NAVIGATION HANDLERS ---
         homeBtn.addEventListener('click', () => {
+            document.querySelectorAll('.server-icon').forEach(el => el.classList.remove('active'));
             homeBtn.classList.add('active');
-            njServerBtn.classList.remove('active');
+
             currentView = 'dms';
             currentTarget = null;
             isGroupChat = false;
             activeGroupData = null;
             groupSettingsTrigger.style.display = "none";
-            
+
+            sidebarHeader.innerText = "Direct Messages";
             memberListHeader.innerText = "Friends";
             chatHeader.innerHTML = `<span>💬</span> Friends`;
-            chatInput.disabled = true;
-            chatInput.placeholder = "Select a friend or Group Chat to start chatting!";
             
+            // LOCK OUT CHAT INPUT UNTIL A SPECIFIC DM IS SELECTED
+            chatInput.disabled = true;
+            attachImageBtn.disabled = true;
+            chatInput.placeholder = "Select a friend to start chatting!";
+            resetImageAttachment();
+
             messageHistory.innerHTML = `
                 <div class="no-chat-selected">
                     <div style="font-size: 48px;">👋</div>
                     <h3>Welcome to NJ Cord Home!</h3>
-                    <p>Click "Add Friends", "Create Group Chat", or select a contact in the sidebar to chat.</p>
+                    <p>Click "Add Friends", "Create Group Chat", or click on a direct message on the left panel to begin.</p>
                 </div>
             `;
-            
-            switchToDMs();
+
+            // Reset navigation panel options inside the channel side menu
+            renderHomeDMChannelList();
+            loadUsersList();
         });
 
-        njServerBtn.addEventListener('click', () => {
-            njServerBtn.classList.add('active');
-            homeBtn.classList.remove('active');
-            currentView = 'nj-server';
-            isGroupChat = false;
-            activeGroupData = null;
-            groupSettingsTrigger.style.display = "none";
-            
-            memberListHeader.innerText = "Online Members";
-            switchToNJServer();
-        });
-
-        function switchToNJServer() {
-            sidebarHeader.innerText = "NJ Cord Server";
+        // --- RENDER SIDEBAR OPTIONS FOR DM/HOME VIEW ONLY ---
+        function renderHomeDMChannelList() {
             sidebarItems.innerHTML = `
-                <div class="channel-category">Text Channels <span class="category-add-btn">＋</span></div>
-                <div class="channel-item channel active" id="chan-chat">💬chat💬</div>
-                <div class="channel-item channel" id="chan-game-suggestions">🎮game-suggestions🎮</div>
-                
-                <div class="channel-category" style="margin-top: 16px;">Voice Channels <span class="category-add-btn">＋</span></div>
-                <div class="channel-item voice" id="chan-nj-vc">NJ-VC</div>
-            `;
-            
-            document.getElementById('chan-chat').onclick = () => setChannel('chat', '💬chat💬');
-            document.getElementById('chan-game-suggestions').onclick = () => setChannel('game-suggestions', '🎮game-suggestions🎮');
-            document.getElementById('chan-nj-vc').onclick = () => joinVoiceChannel();
-            
-            setChannel('chat', '💬chat💬');
-        }
-
-        window.setChannel = function(channelId, channelDisplayName) {
-            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.getElementById(`chan-${channelId}`);
-            if (activeEl) activeEl.classList.add('active');
-            
-            currentTarget = channelId;
-            isGroupChat = false;
-            groupSettingsTrigger.style.display = "none";
-            chatHeader.innerHTML = `<span>#</span> ${channelDisplayName}`;
-            chatInput.disabled = false;
-            chatInput.placeholder = `Message #${channelDisplayName}`;
-            loadMessages();
-        }
-
-        function switchToDMs() {
-            sidebarHeader.innerText = "Direct Messages";
-            
-            sidebarItems.innerHTML = `
-                <div class="friends-nav-btn" id="addFriendsBtn">
-                    <span class="icon">➕</span> Add Friends
+                <div class="friends-nav-btn" id="addFriendBtn">
+                    <span class="icon">👤+</span> Add Friend
                 </div>
-                <div class="friends-nav-btn" id="createGroupChatBtn" style="margin-top: 0;">
-                    <span class="icon">👥</span> Create Group Chat
+                <div class="friends-nav-btn" id="createGroupChatBtn">
+                    <span class="icon">👥+</span> Create Group Chat
                 </div>
-                <div class="channel-category">Private Messages</div>
+                <div class="separator" style="width: 90%; margin: 8px auto;"></div>
+                <div class="channel-category">Direct Messages</div>
             `;
 
-            // Setup real Add Friends Modal open action
-            document.getElementById('addFriendsBtn').onclick = () => {
+            // Re-bind click event mappings on newly injected DOM elements
+            document.getElementById('addFriendBtn').onclick = () => {
                 addFriendUsernameInput.value = "";
                 addFriendModal.style.display = 'flex';
             };
 
-            // Open Create Group modal
             document.getElementById('createGroupChatBtn').onclick = () => {
                 groupNameInput.value = "";
                 groupModalFriendsList.innerHTML = "";
-                
-                // Get your added friends to show in Group list
                 get(ref(db, `users/${currentUser.uid}/friends`)).then((snapshot) => {
-                    const friends = snapshot.val();
-                    if (!friends) {
+                    const friendsObj = snapshot.val();
+                    if (!friendsObj) {
                         groupModalFriendsList.innerHTML = `<div style="font-size: 13px; color: var(--text-muted); padding: 8px;">You don't have any friends added yet! Add a friend first.</div>`;
                     } else {
-                        for (let uid in friends) {
-                            const label = document.createElement('label');
-                            label.className = 'friend-checkbox-item';
-                            label.innerHTML = `
-                                <input type="checkbox" value="${uid}" data-username="${friends[uid]}">
-                                ${friends[uid]}
-                            `;
-                            groupModalFriendsList.appendChild(label);
+                        for (let uid in friendsObj) {
+                            getRealtimeUsername(uid, (actualUsername) => {
+                                if (document.getElementById(`chk-${uid}`)) return;
+                                const label = document.createElement('label');
+                                label.className = 'friend-checkbox-item';
+                                label.id = `chk-${uid}`;
+                                label.innerHTML = `
+                                    <input type="checkbox" value="${uid}" data-username="${actualUsername}"> ${actualUsername}
+                                `;
+                                groupModalFriendsList.appendChild(label);
+                            });
                         }
                     }
                     groupModal.style.display = 'flex';
                 });
             };
 
-            // Listen to your active friends list to render DMs
-            onValue(ref(db, `users/${currentUser.uid}/friends`), (snapshot) => {
-                const oldItems = sidebarItems.querySelectorAll('.dm-item, .group-item');
-                oldItems.forEach(item => item.remove());
-
-                const friends = snapshot.val();
-                if (friends) {
-                    for (let uid in friends) {
+            // Inject the user's direct messages list
+            get(ref(db, `users/${currentUser.uid}/friends`)).then((snapshot) => {
+                const friendsObj = snapshot.val();
+                if (friendsObj) {
+                    for (let uid in friendsObj) {
                         const item = document.createElement('div');
                         item.className = 'channel-item dm-item';
-                        item.innerText = friends[uid];
-                        item.onclick = (e) => selectDM(uid, friends[uid], e);
+                        item.id = `dm-item-${uid}`;
+                        item.innerText = "Loading...";
                         sidebarItems.appendChild(item);
+
+                        getRealtimeUsername(uid, (actualUsername) => {
+                            const updatedItem = document.getElementById(`dm-item-${uid}`);
+                            if (updatedItem) {
+                                updatedItem.innerText = actualUsername;
+                                updatedItem.onclick = (e) => selectDM(uid, actualUsername, e);
+                            }
+                        });
                     }
                 }
-
-                // Render group chats that the current user belongs to
-                onValue(ref(db, 'groups'), (groupSnapshot) => {
-                    const groups = groupSnapshot.val();
-                    const oldGroups = sidebarItems.querySelectorAll('.group-item');
-                    oldGroups.forEach(item => item.remove());
-
-                    if (groups) {
-                        for (let groupId in groups) {
-                            const group = groups[groupId];
-                            if (group.members && group.members[currentUser.uid]) {
-                                const item = document.createElement('div');
-                                item.className = 'channel-item group-item';
-                                item.innerText = group.name;
-                                item.onclick = (e) => selectGroupChat(groupId, group.name, e);
-                                sidebarItems.appendChild(item);
-                            }
-                        }
-                    }
-                });
             });
         }
+
+        // --- INITIALIZE APPLICATION STATE ---
+        function initApp() {
+            // Trigger load direct messages sidebar items
+            homeBtn.click();
+
+            // Track Real-time changes to user's friends list to update Home UI
+            onValue(ref(db, `users/${currentUser.uid}/friends`), (snapshot) => {
+                if (currentView === 'dms') {
+                    renderHomeDMChannelList();
+                }
+            });
+
+            loadUsersList();
+        }
+
+        // --- REALTIME DYNAMIC SERVER SIDEBAR GROUPS LOADER ---
+        onValue(ref(db, 'groups'), (snapshot) => {
+            sidebarGroupsContainer.innerHTML = "";
+            let hasGroups = false;
+
+            const groupsData = snapshot.val();
+            if (groupsData && currentUser) {
+                Object.entries(groupsData).forEach(([gId, gData]) => {
+                    if (gData.members && gData.members[currentUser.uid]) {
+                        hasGroups = true;
+                        const icon = document.createElement('div');
+                        icon.className = 'server-icon';
+                        icon.id = `group-icon-${gId}`;
+                        icon.innerText = gData.name.substring(0, 2).toUpperCase();
+                        icon.title = gData.name;
+                        icon.onclick = (e) => selectGroupChat(gId, gData.name, e);
+                        sidebarGroupsContainer.appendChild(icon);
+                    }
+                });
+            }
+
+            if (hasGroups) {
+                groupSeparator.style.display = "block";
+            } else {
+                groupSeparator.style.display = "none";
+            }
+        });
+
+        // --- GROUP SETUP AND ACTION HANDLERS ---
+        closeGroupModalBtn.onclick = () => groupModal.style.display = 'none';
+
+        createGroupSubmitBtn.onclick = () => {
+            const name = groupNameInput.value.trim();
+            if (!name) return alert("Please enter a name for the Group Chat!");
+
+            const selectedUids = [currentUser.uid];
+            const checkedBoxes = groupModalFriendsList.querySelectorAll('input[type="checkbox"]:checked');
+            checkedBoxes.forEach(cb => selectedUids.push(cb.value));
+
+            const membersObj = {};
+            selectedUids.forEach(uid => {
+                membersObj[uid] = true;
+            });
+
+            const newGroupRef = push(ref(db, 'groups'));
+            set(newGroupRef, {
+                id: newGroupRef.key,
+                name: name,
+                ownerId: currentUser.uid,
+                members: membersObj
+            }).then(() => {
+                groupModal.style.display = 'none';
+                alert("Group Chat successfully created!");
+            });
+        };
+
+        // Handle selecting Group Chat
+        function selectGroupChat(groupId, groupName, e) {
+            document.querySelectorAll('.server-icon').forEach(el => el.classList.remove('active'));
+            if (e && e.currentTarget) {
+                e.currentTarget.classList.add('active');
+            } else {
+                const groupIcon = document.getElementById(`group-icon-${groupId}`);
+                if (groupIcon) groupIcon.classList.add('active');
+            }
+
+            currentView = 'group';
+            currentTarget = groupId;
+            isGroupChat = true;
+            groupSettingsTrigger.style.display = "block";
+
+            // Clear the channels sidebar menu entirely for groups
+            sidebarHeader.innerText = "Group Settings";
+            sidebarItems.innerHTML = `
+                <div class="channel-category">Active Group</div>
+                <div class="channel-item active" style="font-weight: bold; color: var(--text-primary); cursor: default;">
+                    👥 ${groupName}
+                </div>
+            `;
+
+            // Subscribe real-time updates for chosen group parameters
+            onValue(ref(db, `groups/${groupId}`), (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return; // Group was deleted or user kicked
+                activeGroupData = data;
+
+                chatHeader.innerHTML = `<span>👥</span> ${data.name}`;
+                memberListHeader.innerText = `Members (${Object.keys(data.members).length})`;
+                memberList.innerHTML = "";
+
+                const isOwner = (data.ownerId === currentUser.uid);
+
+                // Populate active group list sidebar column
+                Object.keys(data.members).forEach(mUid => {
+                    const memberDiv = document.createElement('div');
+                    memberDiv.id = `group-member-${mUid}`;
+                    memberDiv.className = 'member-item';
+                    memberDiv.onclick = () => viewUserProfile(mUid); // Profile Click Handler
+                    memberList.appendChild(memberDiv);
+
+                    getRealtimeProfile(mUid, (pData) => {
+                        const targetDiv = document.getElementById(`group-member-${mUid}`);
+                        if (targetDiv) {
+                            const uName = pData.username || "User";
+                            const pfpUrl = pData.pfp || "";
+                            const ringColor = pData.ringColor || "transparent";
+                            const avatarChar = pfpUrl ? "" : uName.substring(0, 2).toUpperCase();
+                            const avatarBg = pfpUrl ? `background-image: url(${pfpUrl});` : `background-color: ${isOwner ? 'var(--accent-color)' : '#4b5563'};`;
+
+                            targetDiv.innerHTML = `
+                                <div class="member-avatar" style="${avatarBg}; border-color: ${ringColor};">
+                                    ${avatarChar}
+                                    <div class="status-dot"></div>
+                                </div>
+                                <span class="member-name">${uName}</span>
+                            `;
+                        }
+                    });
+                });
+            });
+
+            // Unlock chat interface inputs
+            chatInput.disabled = false;
+            attachImageBtn.disabled = false;
+            chatInput.placeholder = `Message Group...`;
+            loadMessages();
+        };
 
         // --- ADD FRIEND ACTIONS ---
         closeAddFriendModalBtn.onclick = () => addFriendModal.style.display = 'none';
@@ -1140,13 +2058,11 @@
         addFriendSubmitBtn.onclick = () => {
             const targetUsername = addFriendUsernameInput.value.trim();
             if (!targetUsername) return alert("Please enter a username!");
-            if (targetUsername === footerUsername.innerText) return alert("You cannot add yourself!");
+            if (targetUsername.toLowerCase() === footerUsername.innerText.toLowerCase()) return alert("You cannot add yourself!");
 
-            // Search DB for that user
             get(ref(db, 'users')).then((snapshot) => {
                 const users = snapshot.val();
                 let foundUser = null;
-
                 for (let uid in users) {
                     if (users[uid].username && users[uid].username.toLowerCase() === targetUsername.toLowerCase()) {
                         foundUser = users[uid];
@@ -1155,155 +2071,66 @@
                 }
 
                 if (foundUser) {
-                    // Save onto current user's friends list
                     update(ref(db, `users/${currentUser.uid}/friends`), {
-                        [foundUser.uid]: foundUser.username
+                        [foundUser.uid]: true
                     });
-                    // Save onto target user's friends list too!
                     update(ref(db, `users/${foundUser.uid}/friends`), {
-                        [currentUser.uid]: footerUsername.innerText
+                        [currentUser.uid]: true
+                    }).then(() => {
+                        addFriendModal.style.display = 'none';
+                        alert(`Successfully added ${foundUser.username} to your Friends!`);
                     });
-
-                    addFriendModal.style.display = 'none';
-                    alert(`Successfully added ${foundUser.username} as a friend!`);
                 } else {
-                    alert("User not found. Make sure the spelling is exact!");
+                    alert("User not found! Please check spelling and capitalization.");
                 }
             });
         };
 
-        function selectDM(targetUid, targetName, event) {
-            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            currentTarget = targetUid;
-            isGroupChat = false;
-            groupSettingsTrigger.style.display = "none";
-            chatHeader.innerHTML = `<span>👤</span> ${targetName}`;
-            chatInput.disabled = false;
-            chatInput.placeholder = `Message @${targetName}`;
-            loadMessages();
-        }
-
-        function selectGroupChat(groupId, groupName, event) {
-            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-
-            currentTarget = groupId;
-            isGroupChat = true;
-            chatHeader.innerHTML = `<span>👥</span> ${groupName}`;
-            chatInput.disabled = false;
-            chatInput.placeholder = `Message Group...`;
-
-            // Listen to active group metadata
-            onValue(ref(db, `groups/${groupId}`), (snapshot) => {
-                const groupData = snapshot.val();
-                if (!groupData) return;
-                activeGroupData = groupData;
-
-                chatHeader.innerHTML = `<span>👥</span> ${groupData.name}`;
-
-                // Show settings gear if user is the Owner/Creator
-                if (groupData.creatorId === currentUser.uid) {
-                    groupSettingsTrigger.style.display = "block";
-                } else {
-                    groupSettingsTrigger.style.display = "none";
-                }
-
-                // Render group members list on the right sidebar
-                memberListHeader.innerText = "Group Members";
-                memberList.innerHTML = "";
-                const memberUids = Object.keys(groupData.members);
-                
-                memberUids.forEach((mUid) => {
-                    const mName = groupData.members[mUid];
-                    const isOwner = mUid === groupData.creatorId;
-                    const avatarChar = mName.substring(0, 2).toUpperCase();
-                    const memberHTML = `
-                        <div class="member-item">
-                            <div class="member-avatar" style="background-color: ${isOwner ? 'var(--accent-color)' : '#4b5563'}">
-                                ${avatarChar}
-                                <div class="status-dot"></div>
-                            </div>
-                            <span class="member-name">${mName} ${isOwner ? '<span style="font-size:10px; color:var(--accent-purple);">(Owner)</span>' : ''}</span>
-                        </div>
-                    `;
-                    memberList.innerHTML += memberHTML;
-                });
-            });
-
-            loadMessages();
-        }
-
-        // --- GROUP CREATION SYSTEM ---
-        closeGroupModalBtn.onclick = () => groupModal.style.display = 'none';
-        
-        createGroupSubmitBtn.onclick = () => {
-            const gName = groupNameInput.value.trim();
-            if (!gName) return alert("Please specify a Group Name!");
-
-            const selectedCheckboxes = groupModalFriendsList.querySelectorAll('input[type="checkbox"]:checked');
-            if (selectedCheckboxes.length === 0) return alert("Please choose at least 1 friend to invite!");
-
-            const members = {};
-            members[currentUser.uid] = footerUsername.innerText;
-            selectedCheckboxes.forEach((cb) => {
-                members[cb.value] = cb.getAttribute('data-username');
-            });
-
-            const groupsRef = ref(db, 'groups');
-            const newGroupRef = push(groupsRef);
-            set(newGroupRef, {
-                id: newGroupRef.key,
-                name: gName,
-                creatorId: currentUser.uid,
-                members: members
-            }).then(() => {
-                groupModal.style.display = 'none';
-                alert("Group Chat created successfully!");
-            });
-        };
-
-        // --- GROUP SETTINGS SYSTEM (OWNER ONLY) ---
+        // --- GROUP SETTINGS CONFIGURATIONS ---
         groupSettingsTrigger.onclick = () => {
             if (!isGroupChat || !activeGroupData) return;
+            if (activeGroupData.ownerId !== currentUser.uid) {
+                alert("Only the Group Owner can edit settings and manage members!");
+                return;
+            }
 
             editGroupNameInput.value = activeGroupData.name;
             settingsAddFriendsList.innerHTML = "";
             settingsRemoveMembersList.innerHTML = "";
 
-            // 1. Fetch user's friends to find potential new invites
             get(ref(db, `users/${currentUser.uid}/friends`)).then((snapshot) => {
                 const friends = snapshot.val();
                 if (friends) {
                     for (let uid in friends) {
                         if (!activeGroupData.members[uid]) {
-                            const label = document.createElement('label');
-                            label.className = 'friend-checkbox-item';
-                            label.innerHTML = `
-                                <input type="checkbox" value="${uid}" class="add-member-chk" data-username="${friends[uid]}">
-                                ${friends[uid]}
-                            `;
-                            settingsAddFriendsList.appendChild(label);
+                            getRealtimeUsername(uid, (actualUsername) => {
+                                const label = document.createElement('label');
+                                label.className = 'friend-checkbox-item';
+                                label.innerHTML = `
+                                    <input type="checkbox" value="${uid}" class="add-member-chk" data-username="${actualUsername}"> ${actualUsername}
+                                `;
+                                settingsAddFriendsList.appendChild(label);
+                            });
                         }
                     }
                 }
             });
 
-            // 2. Render current members with a "Remove" button option
             const currentMembers = activeGroupData.members;
             for (let mUid in currentMembers) {
-                if (mUid !== currentUser.uid) { // Owner cannot remove themselves
-                    const div = document.createElement('div');
-                    div.style.display = "flex";
-                    div.style.justifyContent = "space-between";
-                    div.style.alignItems = "center";
-                    div.style.padding = "4px";
-                    div.innerHTML = `
-                        <span style="font-size: 14px;">${currentMembers[mUid]}</span>
-                        <button class="btn btn-cancel" style="padding:4px 8px; font-size:11px;" onclick="removeMemberFromGroup('${mUid}')">Remove</button>
-                    `;
-                    settingsRemoveMembersList.appendChild(div);
+                if (mUid !== currentUser.uid) {
+                    getRealtimeUsername(mUid, (actualUsername) => {
+                        const div = document.createElement('div');
+                        div.style.display = "flex";
+                        div.style.justifyContent = "space-between";
+                        div.style.alignItems = "center";
+                        div.style.padding = "4px";
+                        div.innerHTML = `
+                            <span style="font-size: 14px;">${actualUsername}</span>
+                            <button class="btn btn-cancel" style="padding:4px 8px; font-size:11px;" onclick="removeMemberFromGroup('${mUid}')">Remove</button>
+                        `;
+                        settingsRemoveMembersList.appendChild(div);
+                    });
                 }
             }
 
@@ -1315,7 +2142,7 @@
                 const memberRef = ref(db, `groups/${currentTarget}/members/${memberUid}`);
                 set(memberRef, null).then(() => {
                     alert("Member removed!");
-                    groupSettingsTrigger.click(); 
+                    groupSettingsTrigger.click();
                 });
             }
         };
@@ -1329,48 +2156,186 @@
             const updates = {};
             updates[`groups/${currentTarget}/name`] = updatedName;
 
-            const newMemberChecks = settingsAddFriendsList.querySelectorAll('.add-member-chk:checked');
-            newMemberChecks.forEach((cb) => {
-                updates[`groups/${currentTarget}/members/${cb.value}`] = cb.getAttribute('data-username');
+            const addedChks = settingsAddFriendsList.querySelectorAll('input.add-member-chk:checked');
+            addedChks.forEach(cb => {
+                updates[`groups/${currentTarget}/members/${cb.value}`] = true;
             });
 
             update(ref(db), updates).then(() => {
                 groupSettingsModal.style.display = 'none';
-                alert("Group configuration updated successfully!");
+                alert("Group Settings updated successfully!");
             });
         };
 
-        // --- LIVE REALTIME MESSAGES FLOW ---
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && chatInput.value.trim() !== "" && currentTarget !== null) {
-                const messageText = chatInput.value.trim();
-                let msgRef;
+        // --- GLOBAL MEMBERS POPULATION (HOME VIEW) ---
+        function loadUsersList() {
+            onValue(ref(db, 'users'), (snapshot) => {
+                if (currentView !== 'dms') return; // Do not overwrite non-home context menus
+                memberList.innerHTML = "";
 
-                if (currentView === 'nj-server') {
-                    msgRef = ref(db, `channels/${currentTarget}`);
-                } else if (isGroupChat) {
-                    msgRef = ref(db, `groups/${currentTarget}/messages`);
-                } else {
-                    const dmRoomId = currentUser.uid < currentTarget ? `${currentUser.uid}_${currentTarget}` : `${currentTarget}_${currentUser.uid}`;
-                    msgRef = ref(db, `dms/${dmRoomId}`);
+                const users = snapshot.val();
+                let activeCount = 0;
+
+                if (users && currentUser) {
+                    // Check if they are friends with us
+                    const myFriends = users[currentUser.uid].friends || {};
+
+                    Object.entries(users).forEach(([uid, uData]) => {
+                        if (uid !== currentUser.uid && myFriends[uid]) {
+                            activeCount++;
+                            const div = document.createElement('div');
+                            div.className = 'member-item';
+                            div.onclick = () => viewUserProfile(uid); // Click to open Profile Card Modal
+
+                            const pfpUrl = uData.pfp || "";
+                            const ringColor = uData.ringColor || "transparent";
+                            const avatarChar = pfpUrl ? "" : uData.username.substring(0,2).toUpperCase();
+                            const avatarBg = pfpUrl ? `background-image: url(${pfpUrl});` : `background-color: #4b5563;`;
+
+                            div.innerHTML = `
+                                <div class="member-avatar" style="${avatarBg}; border-color: ${ringColor};">
+                                    ${avatarChar}
+                                    <div class="status-dot"></div>
+                                </div>
+                                <span class="member-name">${uData.username || "User"}</span>
+                            `;
+                            memberList.appendChild(div);
+                        }
+                    });
                 }
+                memberListHeader.innerText = `Friends (${activeCount})`;
+            });
+        }
 
-                const senderName = footerUsername.innerText || "Anonymous";
+        // --- SINGLE SERVER CONFIGURATION (NJ SERVER ACTIONS) ---
+        const njServerBtn = document.getElementById('njServerBtn');
+        njServerBtn.addEventListener('click', () => {
+            document.querySelectorAll('.server-icon').forEach(el => el.classList.remove('active'));
+            njServerBtn.classList.add('active');
 
-                push(msgRef, {
-                    senderId: currentUser.uid,
-                    senderName: senderName,
-                    text: messageText,
-                    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                });
+            currentView = 'nj-server';
+            currentTarget = 'nj-chat';
+            isGroupChat = false;
+            activeGroupData = null;
+            groupSettingsTrigger.style.display = "none";
 
-                chatInput.value = "";
-            }
+            sidebarHeader.innerText = "NJ Cord Server";
+            memberListHeader.innerText = "Online Members";
+            chatHeader.innerHTML = `<span>#</span> nj-chat`;
+            
+            // Unlock server chat inputs
+            chatInput.disabled = false;
+            attachImageBtn.disabled = false;
+            chatInput.placeholder = "Message #nj-chat...";
+            resetImageAttachment();
+
+// Populate text channel sidebar options ONLY inside the server workspace view
+            sidebarItems.innerHTML = `
+                <div class="channel-category">Text Channels</div>
+                <div class="channel-item channel active" id="chan-nj-chat">💬 nj-chat 💬</div>
+                <div class="channel-item channel" id="chan-game-suggestments">🎮 game-suggestments 🎮</div>
+                <div class="channel-category">Voice Channels</div>
+                <div class="channel-item voice" id="chan-nj-vc">nj-vc</div>
+            `;
+          
+            // Voice room triggers
+            document.getElementById('chan-nj-vc').onclick = () => {
+                joinVoiceChannel();
+            };
+
+            onValue(ref(db, 'users'), (snapshot) => {
+                if (currentView !== 'nj-server') return;
+                memberList.innerHTML = "";
+
+                const users = snapshot.val();
+                let count = 0;
+                if (users) {
+                    Object.entries(users).forEach(([uid, uData]) => {
+                        count++;
+                        const div = document.createElement('div');
+                        div.className = 'member-item';
+                        div.onclick = () => viewUserProfile(uid);
+
+                        const pfpUrl = uData.pfp || "";
+                        const ringColor = uData.ringColor || "transparent";
+                        const avatarChar = pfpUrl ? "" : uData.username.substring(0,2).toUpperCase();
+                        const avatarBg = pfpUrl ? `background-image: url(${pfpUrl});` : `background-color: #4b5563;`;
+
+                        div.innerHTML = `
+                            <div class="member-avatar" style="${avatarBg}; border-color: ${ringColor};">
+                                ${avatarChar}
+                                <div class="status-dot"></div>
+                            </div>
+                            <span class="member-name">${uData.username || "User"}</span>
+                        `;
+                        memberList.appendChild(div);
+                    });
+                }
+                memberListHeader.innerText = `Online (${count})`;
+            });
+
+            loadMessages();
         });
 
+        // Setup clicking on a single DM Item
+        function selectDM(uid, username, e) {
+            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+            if (e && e.currentTarget) {
+                e.currentTarget.classList.add('active');
+            } else {
+                const targetEl = document.getElementById(`dm-item-${uid}`);
+                if (targetEl) targetEl.classList.add('active');
+            }
+
+            currentView = 'dms';
+            currentTarget = uid;
+            isGroupChat = false;
+            activeGroupData = null;
+            groupSettingsTrigger.style.display = "none";
+
+            chatHeader.innerHTML = `<span>👤</span> ${username}`;
+            
+            // UNLOCK chat panel input fields because a specific target is active
+            chatInput.disabled = false;
+            attachImageBtn.disabled = false;
+            chatInput.placeholder = `Message @${username}...`;
+            resetImageAttachment();
+
+            // Render right side active sidebar profile panel for selected direct message recipient
+            memberListHeader.innerText = "Profile";
+            memberList.innerHTML = `
+                <div style="padding: 12px; text-align: center; display:flex; flex-direction:column; gap:12px; align-items:center;" id="dmProfileCard">
+                    Loading Profile details...
+                </div>
+            `;
+
+            getRealtimeProfile(uid, (pData) => {
+                const dmProfileCard = document.getElementById('dmProfileCard');
+                if (dmProfileCard && currentTarget === uid) {
+                    const uName = pData.username || "User";
+                    const pfpUrl = pData.pfp || "";
+                    const ringColor = pData.ringColor || "transparent";
+                    const avatarChar = pfpUrl ? "" : uName.substring(0, 2).toUpperCase();
+                    const avatarBg = pfpUrl ? `background-image: url(${pfpUrl});` : `background-color: #4b5563;`;
+
+                    dmProfileCard.innerHTML = `
+                        <div class="member-avatar" style="${avatarBg}; border-color: ${ringColor}; width: 80px; height: 80px; font-size: 24px; cursor: pointer;" onclick="viewUserProfile('${uid}')">
+                            ${avatarChar}
+                            <div class="status-dot" style="width: 14px; height: 14px; bottom: 0; right: 0;"></div>
+                        </div>
+                        <h4 style="color:var(--text-primary); cursor:pointer;" onclick="viewUserProfile('${uid}')">${uName}</h4>
+                        <p style="font-size:12px; color: var(--text-muted); line-height: 1.4; max-width: 180px; white-space: pre-wrap; word-break: break-word;">${pData.bio || "No profile bio written yet."}</p>
+                    `;
+                }
+            });
+
+            loadMessages();
+        }
+
+        // --- MESSAGE LOGIC HANDLERS ---
         function loadMessages() {
             if (!currentTarget) return;
-            
+
             let dbPath;
             if (currentView === 'nj-server') {
                 dbPath = `channels/${currentTarget}`;
@@ -1379,57 +2344,155 @@
             } else {
                 dbPath = `dms/${currentUser.uid < currentTarget ? `${currentUser.uid}_${currentTarget}` : `${currentTarget}_${currentUser.uid}`}`;
             }
-            
+
             onValue(ref(db, dbPath), (snapshot) => {
                 messageHistory.innerHTML = "";
                 const data = snapshot.val();
                 if (data) {
-                    Object.values(data).forEach(msg => {
-                        const avatarChar = msg.senderName ? msg.senderName.substring(0, 2).toUpperCase() : "U";
+                    Object.entries(data).forEach(([msgKey, msg]) => {
+                        const uniqueId = `msg-${msgKey}`;
+                        let imgTag = "";
+                        if (msg.image) {
+                            imgTag = `<img src="${msg.image}" alt="Chat Attachment" class="message-image" onclick="window.open('${msg.image}')">`;
+                        }
+
+                        let reactionsHTML = "";
+                        if (msg.reactions) {
+                            reactionsHTML = `<div class="reactions-container">`;
+                            Object.entries(msg.reactions).forEach(([emoji, usersObj]) => {
+                                const count = Object.keys(usersObj).length;
+                                const hasReacted = usersObj[currentUser.uid] ? "user-reacted" : "";
+                                reactionsHTML += `
+                                    <div class="reaction-pill ${hasReacted}" onclick="toggleReaction('${msgKey}', '${emoji}')">
+                                        <span>${emoji}</span>
+                                        <span class="reaction-count">${count}</span>
+                                    </div>
+                                `;
+                            });
+                            reactionsHTML += `</div>`;
+                        }
+
                         const msgHTML = `
-                            <div class="message">
-                                <div class="user-avatar">${avatarChar}</div>
+                            <div class="message" id="${uniqueId}">
+                                <div class="reaction-trigger-bar">
+                                    <button class="reaction-btn" onclick="toggleReaction('${msgKey}', '👍')" title="Thumbs Up">👍</button>
+                                    <button class="reaction-btn" onclick="toggleReaction('${msgKey}', '❤️')" title="Love">❤️</button>
+                                    <button class="reaction-btn" onclick="toggleReaction('${msgKey}', '🔥')" title="Fire">🔥</button>
+                                    <button class="reaction-btn" onclick="toggleReaction('${msgKey}', '😂')" title="Laugh">😂</button>
+                                </div>
+                                <div class="user-avatar" onclick="viewUserProfile('${msg.senderId}')" id="avatar-${uniqueId}">U</div>
                                 <div class="message-content">
                                     <div class="message-info">
-                                        <span class="username">${msg.senderName}</span>
-                                        <span class="timestamp">${msg.timestamp}</span>
+                                        <span class="username" onclick="viewUserProfile('${msg.senderId}')" style="cursor:pointer;" id="user-label-${uniqueId}">User</span>
+                                        <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                     <div class="message-text">${msg.text}</div>
+                                    ${imgTag}
+                                    ${reactionsHTML}
                                 </div>
                             </div>
                         `;
                         messageHistory.innerHTML += msgHTML;
-                    });
-                    messageHistory.scrollTop = messageHistory.scrollHeight; 
-                }
-            });
-        }
 
-        // --- GLOBAL MEMBER LIST FLOW ---
-        function loadUsersList() {
-            onValue(ref(db, 'users'), (snapshot) => {
-                if (isGroupChat) return; 
-                memberList.innerHTML = "";
-                const users = snapshot.val();
-                for (let uid in users) {
-                    const avatarChar = users[uid].username ? users[uid].username.substring(0, 2).toUpperCase() : "U";
-                    const memberHTML = `
-                        <div class="member-item">
-                            <div class="member-avatar">
-                                ${avatarChar}
-                                <div class="status-dot"></div>
-                            </div>
-                            <span class="member-name">${users[uid].username}</span>
+                        getRealtimeProfile(msg.senderId, (pData) => {
+                            const avatarEl = document.getElementById(`avatar-${uniqueId}`);
+                            const labelEl = document.getElementById(`user-label-${uniqueId}`);
+                            if (avatarEl && labelEl) {
+                                labelEl.innerText = pData.username || "User";
+                                
+                                const pfpUrl = pData.pfp || "";
+                                const ringColor = pData.ringColor || "transparent";
+                                avatarEl.style.borderColor = ringColor;
+
+                                if (pfpUrl) {
+                                    avatarEl.style.backgroundImage = `url(${pfpUrl})`;
+                                    avatarEl.innerText = "";
+                                } else {
+                                    avatarEl.style.backgroundImage = "none";
+                                    avatarEl.innerText = (pData.username || "U").substring(0, 2).toUpperCase();
+                                }
+                            }
+                        });
+                    });
+                    messageHistory.scrollTop = messageHistory.scrollHeight;
+                } else {
+                    messageHistory.innerHTML = `
+                        <div class="no-chat-selected">
+                            <div style="font-size: 32px;">💬</div>
+                            <h3>This is the beginning of your conversation!</h3>
+                            <p>Send a message to get things started.</p>
                         </div>
                     `;
-                    memberList.innerHTML += memberHTML;
                 }
             });
         }
 
-        // ==========================================
-        // --- REAL WEBRTC VOICE CHAT ENGINE ---
-        // ==========================================
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !chatInput.disabled) {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text && !attachedImageBase64) return;
+
+            let dbPath;
+            if (currentView === 'nj-server') {
+                dbPath = `channels/${currentTarget}`;
+            } else if (isGroupChat) {
+                dbPath = `groups/${currentTarget}/messages`;
+            } else {
+                dbPath = `dms/${currentUser.uid < currentTarget ? `${currentUser.uid}_${currentTarget}` : `${currentTarget}_${currentUser.uid}`}`;
+            }
+
+            const msgData = {
+                senderId: currentUser.uid,
+                text: text,
+                timestamp: Date.now()
+            };
+
+            if (attachedImageBase64) {
+                msgData.image = attachedImageBase64;
+            }
+
+            push(ref(db, dbPath), msgData).then(() => {
+                chatInput.value = "";
+                resetImageAttachment();
+            });
+        }
+
+        // --- REACTION ACTIONS SYSTEM ---
+        window.toggleReaction = function(msgKey, emoji) {
+            if (!currentUser) return;
+
+            let dbPath;
+            if (currentView === 'nj-server') {
+                dbPath = `channels/${currentTarget}/${msgKey}/reactions/${emoji}`;
+            } else if (isGroupChat) {
+                dbPath = `groups/${currentTarget}/messages/${msgKey}/reactions/${emoji}`;
+            } else {
+                dbPath = `dms/${currentUser.uid < currentTarget ? `${currentUser.uid}_${currentTarget}` : `${currentTarget}_${currentUser.uid}`}/${msgKey}/reactions/${emoji}`;
+            }
+
+            get(ref(db, `${dbPath}/${currentUser.uid}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    // Remove reaction since they clicked it again
+                    set(ref(db, `${dbPath}/${currentUser.uid}`), null);
+                } else {
+                    // Add reaction
+                    set(ref(db, `${dbPath}/${currentUser.uid}`), {
+                        username: footerUsername.innerText
+                    });
+                }
+            });
+        };
+
+        // --- REALTIME WEBRTC VOICE CODECS & ACTIONS ---
+        const vcPanel = document.getElementById('vcPanel');
+        const vcStatusText = document.getElementById('vcStatusText');
+        const vcChannelName = document.getElementById('vcChannelName');
+        const vcHangupBtn = document.getElementById('vcHangupBtn');
 
         async function joinVoiceChannel() {
             if (isJoinedToVoice) {
@@ -1442,23 +2505,16 @@
             vcStatusText.innerHTML = `<div class="vc-pulse"></div> Connecting...`;
 
             try {
-                // 1. Get user mic permissions
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 isJoinedToVoice = true;
 
-                // 2. Announce connection path on Firebase
                 const voiceRoomRef = ref(db, `voice_channels/nj-vc/users/${currentUser.uid}`);
-                await set(voiceRoomRef, {
-                    uid: currentUser.uid,
-                    username: footerUsername.innerText
-                });
+                await set(voiceRoomRef, { uid: currentUser.uid, username: footerUsername.innerText });
 
                 vcStatusText.className = "vc-status-indicator";
                 vcStatusText.innerHTML = `<div class="vc-pulse"></div> Voice Connected`;
 
-                // 3. Listen to other people inside the voice channel
                 setupVoiceSignaling();
-
             } catch (err) {
                 console.error("Microphone Access Denied:", err);
                 alert("Could not access microphone. Please allow microphone permissions to join the voice call!");
@@ -1468,122 +2524,122 @@
 
         function setupVoiceSignaling() {
             const voiceUsersRef = ref(db, `voice_channels/nj-vc/users`);
-            
-            // Listen to other users entering the channel
+
             onValue(voiceUsersRef, (snapshot) => {
                 const users = snapshot.val() || {};
-                
-                // For every other active participant, establish peer connections
                 for (let otherUid in users) {
                     if (otherUid !== currentUser.uid && !peerConnections[otherUid]) {
-                        initiatePeerConnection(otherUid, true); // We are calling them
-                    }
-                }
-
-                // Clean up disconnected peers
-                for (let activePeerId in peerConnections) {
-                    if (!users[activePeerId]) {
-                        closePeerConnection(activePeerId);
+                        initiateCall(otherUid);
                     }
                 }
             });
 
-            // Listen for signaling incoming offers, answers, and ICE routing details
-            const signalingRef = ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}`);
-            onChildAdded(signalingRef, async (snapshot) => {
-                const signal = snapshot.val();
-                if (!signal) return;
+            // Listen for incoming RTC offers/answers/ICE candidates
+            const signalRef = ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}`);
+            onValue(signalRef, (snapshot) => {
+                const signalData = snapshot.val();
+                if (!signalData) return;
 
-                const senderId = signal.senderId;
-                
-                if (signal.type === 'offer') {
-                    const pc = initiatePeerConnection(senderId, false); // Answerer side
-                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-                    const answer = await pc.createAnswer();
-                    await pc.setLocalDescription(answer);
-
-                    // Send the answer back to the peer
-                    const replyRef = ref(db, `voice_channels/nj-vc/signals/${senderId}`);
-                    push(replyRef, {
-                        type: 'answer',
-                        senderId: currentUser.uid,
-                        sdp: answer
-                    });
-                } 
-                else if (signal.type === 'answer') {
-                    const pc = peerConnections[senderId];
-                    if (pc) {
-                        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                Object.entries(signalData).forEach(([senderId, signal]) => {
+                    if (signal.offer) {
+                        handleOffer(senderId, signal.offer);
+                    } else if (signal.answer) {
+                        handleAnswer(senderId, signal.answer);
+                    } else if (signal.candidate) {
+                        handleCandidate(senderId, signal.candidate);
                     }
-                } 
-                else if (signal.type === 'ice-candidate') {
-                    const pc = peerConnections[senderId];
-                    if (pc) {
-                        try {
-                            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
-                        } catch (e) {
-                            console.warn("Error adding ICE candidate:", e);
-                        }
-                    }
-                }
-
-                // Remove signal from db once handled
-                remove(ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}/${snapshot.key}`));
+                });
+                remove(signalRef); // Clear signal logs once read
             });
         }
 
-        function initiatePeerConnection(peerId, isCaller) {
+        async function initiateCall(targetUid) {
+            const pc = createPeerConnection(targetUid);
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            try {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                const targetSignalRef = ref(db, `voice_channels/nj-vc/signals/${targetUid}/${currentUser.uid}`);
+                await update(targetSignalRef, { offer: { sdp: offer.sdp, type: offer.type } });
+            } catch (e) {
+                console.error("RTC Offer generation failed:", e);
+            }
+        }
+
+        async function handleOffer(senderId, offer) {
+            const pc = createPeerConnection(senderId);
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            try {
+                await pc.setRemoteDescription(new RTCSessionDescription(offer));
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+
+                const targetSignalRef = ref(db, `voice_channels/nj-vc/signals/${senderId}/${currentUser.uid}`);
+                await update(targetSignalRef, { answer: { sdp: answer.sdp, type: answer.type } });
+            } catch (e) {
+                console.error("RTC Answer generation failed:", e);
+            }
+        }
+
+        async function handleAnswer(senderId, answer) {
+            const pc = peerConnections[senderId];
+            if (pc) {
+                await pc.setRemoteDescription(new RTCSessionDescription(answer));
+            }
+        }
+
+        async function handleCandidate(senderId, candidate) {
+            const pc = peerConnections[senderId];
+            if (pc) {
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            }
+        }
+
+        function createPeerConnection(peerId) {
             const pc = new RTCPeerConnection(iceServers);
             peerConnections[peerId] = pc;
 
-            // Push our audio track onto the connection
-            if (localStream) {
-                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-            }
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const targetSignalRef = ref(db, `voice_channels/nj-vc/signals/${peerId}/${currentUser.uid}`);
+                    update(targetSignalRef, { candidate: event.candidate.toJSON() });
+                }
+            };
 
-            // Receive the remote audio stream
             pc.ontrack = (event) => {
-                const remoteStream = event.streams[0];
                 let audioEl = document.getElementById(`audio-${peerId}`);
-                
                 if (!audioEl) {
                     audioEl = document.createElement('audio');
                     audioEl.id = `audio-${peerId}`;
                     audioEl.autoplay = true;
                     remoteAudioContainer.appendChild(audioEl);
                 }
-                audioEl.srcObject = remoteStream;
+                audioEl.srcObject = event.streams[0];
             };
 
-            // Network routing discovery
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    const candidateRef = ref(db, `voice_channels/nj-vc/signals/${peerId}`);
-                    push(candidateRef, {
-                        type: 'ice-candidate',
-                        senderId: currentUser.uid,
-                        candidate: event.candidate.toJSON()
-                    });
+            // Ice connection state tracking loop
+            pc.oniceconnectionstatechange = () => {
+                if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
+                    closePeerConnection(peerId);
                 }
             };
 
-            // If we are initiating, create the WebRTC connection invite offer
-            if (isCaller) {
-                pc.onnegotiationneeded = async () => {
+            // Renegotiation handling
+            pc.onnegotiationneeded = async () => {
+                if (pc.signalingState === "stable") {
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
-                        const offerRef = ref(db, `voice_channels/nj-vc/signals/${peerId}`);
-                        push(offerRef, {
-                            type: 'offer',
-                            senderId: currentUser.uid,
-                            sdp: offer
-                        });
+                        const targetSignalRef = ref(db, `voice_channels/peerId}/${currentUser.uid}`);
+                        await update(targetSignalRef, { offer: { sdp: offer.sdp, type: offer.type } });
                     } catch (e) {
                         console.error("Negotiation setup failed:", e);
                     }
-                };
-            }
+                }
+            };
 
             return pc;
         }
@@ -1600,19 +2656,16 @@
         function leaveVoiceChannel() {
             if (!isJoinedToVoice) return;
 
-            // 1. Remove database signaling entries
             if (currentUser) {
                 remove(ref(db, `voice_channels/nj-vc/users/${currentUser.uid}`));
                 remove(ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}`));
             }
 
-            // 2. Shut off microphone
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
             }
 
-            // 3. Destroy WebRTC configurations
             for (let peerId in peerConnections) {
                 closePeerConnection(peerId);
             }
@@ -1623,12 +2676,10 @@
             vcPanel.style.display = "none";
         }
 
-        // Hook up the Disconnect button
         vcHangupBtn.onclick = () => {
             leaveVoiceChannel();
         };
 
-        // Window unload safety hook
         window.addEventListener('beforeunload', () => {
             leaveVoiceChannel();
         });
