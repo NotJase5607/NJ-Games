@@ -16,6 +16,8 @@
             --text-primary: #f3f4f6;     
             --text-muted: #9ca3af;       
             --input-bg: #374151;         
+            --danger-color: #ef4444;
+            --success-color: #10b981;
         }
 
         * {
@@ -187,6 +189,19 @@
             color: var(--text-muted);
             text-transform: uppercase;
             padding: 8px 8px 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-add-btn {
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .category-add-btn:hover {
+            color: var(--text-primary);
         }
 
         .channel-item {
@@ -207,13 +222,19 @@
 
         .channel-item.channel::before {
             content: "#";
-            margin-right: 6px;
+            margin-right: 8px;
             font-size: 18px;
             color: var(--text-muted);
         }
 
         .channel-item.channel.active::before {
             color: var(--accent-color);
+        }
+
+        .channel-item.voice::before {
+            content: "🔊";
+            margin-right: 8px;
+            font-size: 14px;
         }
 
         .dm-item::before {
@@ -251,6 +272,66 @@
             color: var(--accent-color);
         }
 
+        /* --- ACTIVE VC INTERFACE PANEL --- */
+        .vc-connection-panel {
+            background-color: #0f172a;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 10px;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vc-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .vc-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .vc-status-indicator.connecting {
+            color: #f59e0b;
+        }
+
+        .vc-pulse {
+            width: 8px;
+            height: 8px;
+            background-color: currentColor;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.4; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        .vc-hangup-btn {
+            background-color: var(--danger-color);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .vc-hangup-btn:hover {
+            background-color: #dc2626;
+        }
+
         /* User Footer Panel */
         .user-footer {
             height: 52px;
@@ -259,14 +340,13 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 10px;
-            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
         .user-footer-info {
             display: flex;
             align-items: center;
             gap: 8px;
-            min-width: 0; /* Prevents long usernames from busting layout */
+            min-width: 0; 
         }
 
         .logout-btn {
@@ -558,9 +638,17 @@
         .btn:hover {
             opacity: 0.9;
         }
+
+        /* Invisible Audio Container for WebRTC Stream Playback */
+        #remote-audio-container {
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Invisible element to hold remote user audio tags -->
+    <div id="remote-audio-container"></div>
 
     <!-- AUTHENTICATION LAYER -->
     <div class="auth-container" id="authScreen">
@@ -645,6 +733,20 @@
             <div class="channel-list" id="sidebarItems">
                 <!-- Items dynamically populated by Javascript -->
             </div>
+
+            <!-- --- ACTIVE VC STATUS PANEL --- -->
+            <div class="vc-connection-panel" id="vcPanel">
+                <div class="vc-status-row">
+                    <div class="vc-status-indicator" id="vcStatusText">
+                        <div class="vc-pulse"></div> Voice Connected
+                    </div>
+                    <button class="vc-hangup-btn" id="vcHangupBtn">Disconnect</button>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="vcChannelName">
+                    NJ-VC / NJ Cord Server
+                </div>
+            </div>
+
             <!-- Logged In User Info Footer -->
             <div class="user-footer">
                 <div class="user-footer-info">
@@ -689,7 +791,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, get, child, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, get, child, set, update, remove, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCvGp_PJhUrJaYm5YcYL_Ii-bsepdq-CzE",
@@ -714,6 +816,17 @@
         let isGroupChat = false;
         let activeGroupData = null; // Cache details about selected group
 
+        // --- WEBRTC / VOICE CHAT STATE ---
+        let localStream = null;
+        let peerConnections = {}; // Map of userId -> RTCPeerConnection
+        let isJoinedToVoice = false;
+        const iceServers = {
+            iceServers: [
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        };
+
         // DOM Elements
         const authScreen = document.getElementById('authScreen');
         const authTitle = document.getElementById('authTitle');
@@ -734,6 +847,12 @@
         const memberListHeader = document.getElementById('memberListHeader');
         const footerUsername = document.getElementById('footerUsername');
         const footerAvatar = document.getElementById('footerAvatar');
+
+        // VC DOM
+        const vcPanel = document.getElementById('vcPanel');
+        const vcStatusText = document.getElementById('vcStatusText');
+        const vcHangupBtn = document.getElementById('vcHangupBtn');
+        const remoteAudioContainer = document.getElementById('remote-audio-container');
 
         // Modals DOM
         const addFriendModal = document.getElementById('addFriendModal');
@@ -848,6 +967,7 @@
                 homeBtn.click();
                 loadUsersList();
             } else {
+                leaveVoiceChannel(); // Ensure mic is hung up on logout
                 currentUser = null;
                 authScreen.style.display = 'flex';
                 sidebarItems.innerHTML = "";
@@ -903,30 +1023,32 @@
         function switchToNJServer() {
             sidebarHeader.innerText = "NJ Cord Server";
             sidebarItems.innerHTML = `
-                <div class="channel-category">Text Channels</div>
-                <div class="channel-item channel active" id="chan-general">general</div>
-                <div class="channel-item channel" id="chan-bot-spam">bot-spam</div>
-                <div class="channel-item channel" id="chan-announcements">announcements</div>
+                <div class="channel-category">Text Channels <span class="category-add-btn">＋</span></div>
+                <div class="channel-item channel active" id="chan-chat">💬chat💬</div>
+                <div class="channel-item channel" id="chan-game-suggestions">🎮game-suggestions🎮</div>
+                
+                <div class="channel-category" style="margin-top: 16px;">Voice Channels <span class="category-add-btn">＋</span></div>
+                <div class="channel-item voice" id="chan-nj-vc">NJ-VC</div>
             `;
             
-            document.getElementById('chan-general').onclick = () => setChannel('general');
-            document.getElementById('chan-bot-spam').onclick = () => setChannel('bot-spam');
-            document.getElementById('chan-announcements').onclick = () => setChannel('announcements');
+            document.getElementById('chan-chat').onclick = () => setChannel('chat', '💬chat💬');
+            document.getElementById('chan-game-suggestions').onclick = () => setChannel('game-suggestions', '🎮game-suggestions🎮');
+            document.getElementById('chan-nj-vc').onclick = () => joinVoiceChannel();
             
-            setChannel('general');
+            setChannel('chat', '💬chat💬');
         }
 
-        window.setChannel = function(channelName) {
+        window.setChannel = function(channelId, channelDisplayName) {
             document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.getElementById(`chan-${channelName}`);
+            const activeEl = document.getElementById(`chan-${channelId}`);
             if (activeEl) activeEl.classList.add('active');
             
-            currentTarget = channelName;
+            currentTarget = channelId;
             isGroupChat = false;
             groupSettingsTrigger.style.display = "none";
-            chatHeader.innerHTML = `<span>#</span> ${channelName}`;
+            chatHeader.innerHTML = `<span>#</span> ${channelDisplayName}`;
             chatInput.disabled = false;
-            chatInput.placeholder = `Message #${channelName}`;
+            chatInput.placeholder = `Message #${channelDisplayName}`;
             loadMessages();
         }
 
@@ -1304,6 +1426,212 @@
                 }
             });
         }
+
+        // ==========================================
+        // --- REAL WEBRTC VOICE CHAT ENGINE ---
+        // ==========================================
+
+        async function joinVoiceChannel() {
+            if (isJoinedToVoice) {
+                alert("You are already connected to a voice channel!");
+                return;
+            }
+
+            vcPanel.style.display = "flex";
+            vcStatusText.className = "vc-status-indicator connecting";
+            vcStatusText.innerHTML = `<div class="vc-pulse"></div> Connecting...`;
+
+            try {
+                // 1. Get user mic permissions
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                isJoinedToVoice = true;
+
+                // 2. Announce connection path on Firebase
+                const voiceRoomRef = ref(db, `voice_channels/nj-vc/users/${currentUser.uid}`);
+                await set(voiceRoomRef, {
+                    uid: currentUser.uid,
+                    username: footerUsername.innerText
+                });
+
+                vcStatusText.className = "vc-status-indicator";
+                vcStatusText.innerHTML = `<div class="vc-pulse"></div> Voice Connected`;
+
+                // 3. Listen to other people inside the voice channel
+                setupVoiceSignaling();
+
+            } catch (err) {
+                console.error("Microphone Access Denied:", err);
+                alert("Could not access microphone. Please allow microphone permissions to join the voice call!");
+                leaveVoiceChannel();
+            }
+        }
+
+        function setupVoiceSignaling() {
+            const voiceUsersRef = ref(db, `voice_channels/nj-vc/users`);
+            
+            // Listen to other users entering the channel
+            onValue(voiceUsersRef, (snapshot) => {
+                const users = snapshot.val() || {};
+                
+                // For every other active participant, establish peer connections
+                for (let otherUid in users) {
+                    if (otherUid !== currentUser.uid && !peerConnections[otherUid]) {
+                        initiatePeerConnection(otherUid, true); // We are calling them
+                    }
+                }
+
+                // Clean up disconnected peers
+                for (let activePeerId in peerConnections) {
+                    if (!users[activePeerId]) {
+                        closePeerConnection(activePeerId);
+                    }
+                }
+            });
+
+            // Listen for signaling incoming offers, answers, and ICE routing details
+            const signalingRef = ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}`);
+            onChildAdded(signalingRef, async (snapshot) => {
+                const signal = snapshot.val();
+                if (!signal) return;
+
+                const senderId = signal.senderId;
+                
+                if (signal.type === 'offer') {
+                    const pc = initiatePeerConnection(senderId, false); // Answerer side
+                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+
+                    // Send the answer back to the peer
+                    const replyRef = ref(db, `voice_channels/nj-vc/signals/${senderId}`);
+                    push(replyRef, {
+                        type: 'answer',
+                        senderId: currentUser.uid,
+                        sdp: answer
+                    });
+                } 
+                else if (signal.type === 'answer') {
+                    const pc = peerConnections[senderId];
+                    if (pc) {
+                        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                    }
+                } 
+                else if (signal.type === 'ice-candidate') {
+                    const pc = peerConnections[senderId];
+                    if (pc) {
+                        try {
+                            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                        } catch (e) {
+                            console.warn("Error adding ICE candidate:", e);
+                        }
+                    }
+                }
+
+                // Remove signal from db once handled
+                remove(ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}/${snapshot.key}`));
+            });
+        }
+
+        function initiatePeerConnection(peerId, isCaller) {
+            const pc = new RTCPeerConnection(iceServers);
+            peerConnections[peerId] = pc;
+
+            // Push our audio track onto the connection
+            if (localStream) {
+                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            }
+
+            // Receive the remote audio stream
+            pc.ontrack = (event) => {
+                const remoteStream = event.streams[0];
+                let audioEl = document.getElementById(`audio-${peerId}`);
+                
+                if (!audioEl) {
+                    audioEl = document.createElement('audio');
+                    audioEl.id = `audio-${peerId}`;
+                    audioEl.autoplay = true;
+                    remoteAudioContainer.appendChild(audioEl);
+                }
+                audioEl.srcObject = remoteStream;
+            };
+
+            // Network routing discovery
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const candidateRef = ref(db, `voice_channels/nj-vc/signals/${peerId}`);
+                    push(candidateRef, {
+                        type: 'ice-candidate',
+                        senderId: currentUser.uid,
+                        candidate: event.candidate.toJSON()
+                    });
+                }
+            };
+
+            // If we are initiating, create the WebRTC connection invite offer
+            if (isCaller) {
+                pc.onnegotiationneeded = async () => {
+                    try {
+                        const offer = await pc.createOffer();
+                        await pc.setLocalDescription(offer);
+                        const offerRef = ref(db, `voice_channels/nj-vc/signals/${peerId}`);
+                        push(offerRef, {
+                            type: 'offer',
+                            senderId: currentUser.uid,
+                            sdp: offer
+                        });
+                    } catch (e) {
+                        console.error("Negotiation setup failed:", e);
+                    }
+                };
+            }
+
+            return pc;
+        }
+
+        function closePeerConnection(peerId) {
+            if (peerConnections[peerId]) {
+                peerConnections[peerId].close();
+                delete peerConnections[peerId];
+            }
+            const audioEl = document.getElementById(`audio-${peerId}`);
+            if (audioEl) audioEl.remove();
+        }
+
+        function leaveVoiceChannel() {
+            if (!isJoinedToVoice) return;
+
+            // 1. Remove database signaling entries
+            if (currentUser) {
+                remove(ref(db, `voice_channels/nj-vc/users/${currentUser.uid}`));
+                remove(ref(db, `voice_channels/nj-vc/signals/${currentUser.uid}`));
+            }
+
+            // 2. Shut off microphone
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+
+            // 3. Destroy WebRTC configurations
+            for (let peerId in peerConnections) {
+                closePeerConnection(peerId);
+            }
+            peerConnections = {};
+            remoteAudioContainer.innerHTML = "";
+
+            isJoinedToVoice = false;
+            vcPanel.style.display = "none";
+        }
+
+        // Hook up the Disconnect button
+        vcHangupBtn.onclick = () => {
+            leaveVoiceChannel();
+        };
+
+        // Window unload safety hook
+        window.addEventListener('beforeunload', () => {
+            leaveVoiceChannel();
+        });
     </script>
 </body>
 </html>
