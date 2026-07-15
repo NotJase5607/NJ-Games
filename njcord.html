@@ -445,13 +445,35 @@
             display: flex;
             gap: 16px;
             position: relative; /* Setup anchor for hovered reaction toolbar */
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 4px;
             transition: background-color 0.1s;
+            border-left: 4px solid transparent;
         }
 
         .message:hover {
             background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* --- MESSAGE PING MENTION SYSTEM STYLES --- */
+        .message.pinged {
+            background-color: rgba(6, 182, 212, 0.12) !important;
+            border-left-color: var(--accent-color);
+        }
+
+        .message.pinged:hover {
+            background-color: rgba(6, 182, 212, 0.16) !important;
+        }
+
+        .mention {
+            background-color: rgba(6, 182, 212, 0.25);
+            color: #22d3ee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+            user-select: none;
         }
 
         /* Hover Reaction Trigger Bar */
@@ -1284,6 +1306,7 @@
 
         // State Tracking
         let currentUser = null;
+        let currentUsername = ""; // Holds the local client's username for ping parsing
         let isRegistering = false;
         let currentView = 'dms'; // 'dms', 'nj-server', or 'group'
         let currentTarget = null; // Channel name, DM Target UID, Group ID, or null
@@ -1306,6 +1329,9 @@
                 { urls: 'stun:stun2.l.google.com:19302' }
             ]
         };
+
+        // DM-style Audio Ping element initialization (polite low-pop alert sound)
+        const pingSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav");
 
         // DOM Elements
         const authScreen = document.getElementById('authScreen');
@@ -1494,6 +1520,7 @@
                     const userData = snapshot.val();
                     if (userData && userData.username) {
                         footerUsername.innerText = userData.username;
+                        currentUsername = userData.username; // Cache globally for mentions parsing
                         // Handle Ring Color wrapper border in bottom left
                         const ringColor = userData.ringColor || "#000000";
                         footerAvatar.style.borderColor = ringColor;
@@ -1507,6 +1534,7 @@
                         }
                     } else if (user.displayName) {
                         footerUsername.innerText = user.displayName;
+                        currentUsername = user.displayName; // Cache globally for mentions parsing
                         footerAvatar.innerText = user.displayName.substring(0, 2).toUpperCase();
                         set(ref(db, `users/${user.uid}`), {
                             username: user.displayName,
@@ -2207,6 +2235,21 @@
             });
         }
 
+        // --- SWITCH CHANNELS INSIDE NJ SERVER ---
+        function switchNJServerChannel(channelId) {
+            document.querySelectorAll('.channel-item.channel').forEach(el => el.classList.remove('active'));
+            const targetChanEl = document.getElementById(`chan-${channelId}`);
+            if (targetChanEl) {
+                targetChanEl.classList.add('active');
+            }
+
+            currentTarget = channelId;
+            chatHeader.innerHTML = `<span>#</span> ${channelId}`;
+            chatInput.placeholder = `Message #${channelId}...`;
+            resetImageAttachment();
+            loadMessages();
+        }
+
         // --- SINGLE SERVER CONFIGURATION (NJ SERVER ACTIONS) ---
         const njServerBtn = document.getElementById('njServerBtn');
         njServerBtn.addEventListener('click', () => {
@@ -2229,7 +2272,7 @@
             chatInput.placeholder = "Message #nj-chat...";
             resetImageAttachment();
 
-// Populate text channel sidebar options ONLY inside the server workspace view
+            // Populate text channel sidebar options ONLY inside the server workspace view
             sidebarItems.innerHTML = `
                 <div class="channel-category">Text Channels</div>
                 <div class="channel-item channel active" id="chan-nj-chat">💬 nj-chat 💬</div>
@@ -2238,6 +2281,14 @@
                 <div class="channel-item voice" id="chan-nj-vc">nj-vc</div>
             `;
           
+            // Dynamic switching handlers for text channels
+            document.getElementById('chan-nj-chat').onclick = () => {
+                switchNJServerChannel('nj-chat');
+            };
+            document.getElementById('chan-game-suggestments').onclick = () => {
+                switchNJServerChannel('game-suggestments');
+            };
+
             // Voice room triggers
             document.getElementById('chan-nj-vc').onclick = () => {
                 joinVoiceChannel();
@@ -2332,6 +2383,48 @@
             loadMessages();
         }
 
+        // --- MESSAGE PING PARSING PARSER SYSTEM ---
+        function parseMessagePings(text, senderId) {
+            if (!text) return { parsedHtml: "", hasTriggeredPing: false };
+
+            // Sanitize raw HTML tags to protect input streams from injection
+            let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            let hasTriggeredPing = false;
+
+            // 1. Process Global Mentions (@everyone, @here)
+            const everyoneRegex = /@everyone\b/gi;
+            if (everyoneRegex.test(safeText)) {
+                safeText = safeText.replace(everyoneRegex, `<span class="mention">@everyone</span>`);
+                if (senderId !== currentUser.uid) hasTriggeredPing = true;
+            }
+
+            const hereRegex = /@here\b/gi;
+            if (hereRegex.test(safeText)) {
+                safeText = safeText.replace(hereRegex, `<span class="mention">@here</span>`);
+                if (senderId !== currentUser.uid) hasTriggeredPing = true;
+            }
+
+            // 2. Process Personal Client Mentions (@username)
+            if (currentUsername) {
+                const personalPingRegex = new RegExp(`@${currentUsername.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'gi');
+                if (personalPingRegex.test(safeText)) {
+                    safeText = safeText.replace(personalPingRegex, `<span class="mention">@${currentUsername}</span>`);
+                    if (senderId !== currentUser.uid) hasTriggeredPing = true;
+                }
+            }
+
+            // 3. Process Stylized Mention Badges for other users' mentions
+            safeText = safeText.replace(/@([a-zA-Z0-9_]+)/g, (match, usernameMatch) => {
+                // If it was already formatted for the logged-in client's name, return untouched
+                if (currentUsername && usernameMatch.toLowerCase() === currentUsername.toLowerCase()) {
+                    return match;
+                }
+                return `<span class="mention">${match}</span>`;
+            });
+
+            return { parsedHtml: safeText, hasTriggeredPing: hasTriggeredPing };
+        }
+
         // --- MESSAGE LOGIC HANDLERS ---
         function loadMessages() {
             if (!currentTarget) return;
@@ -2372,8 +2465,17 @@
                             reactionsHTML += `</div>`;
                         }
 
+                        // Run ping mention checker on the text
+                        const { parsedHtml, hasTriggeredPing } = parseMessagePings(msg.text, msg.senderId);
+                        const pingClass = hasTriggeredPing ? "pinged" : "";
+
+                        // Alert client with a ping sound effect if highlighted message is fresh
+                        if (hasTriggeredPing && (Date.now() - msg.timestamp < 3000)) {
+                            pingSound.play().catch(e => console.log("Blocked browser audio warning: " + e));
+                        }
+
                         const msgHTML = `
-                            <div class="message" id="${uniqueId}">
+                            <div class="message ${pingClass}" id="${uniqueId}">
                                 <div class="reaction-trigger-bar">
                                     <button class="reaction-btn" onclick="toggleReaction('${msgKey}', '👍')" title="Thumbs Up">👍</button>
                                     <button class="reaction-btn" onclick="toggleReaction('${msgKey}', '❤️')" title="Love">❤️</button>
@@ -2386,7 +2488,7 @@
                                         <span class="username" onclick="viewUserProfile('${msg.senderId}')" style="cursor:pointer;" id="user-label-${uniqueId}">User</span>
                                         <span class="timestamp">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
-                                    <div class="message-text">${msg.text}</div>
+                                    <div class="message-text">${parsedHtml}</div>
                                     ${imgTag}
                                     ${reactionsHTML}
                                 </div>
@@ -2633,7 +2735,7 @@
                     try {
                         const offer = await pc.createOffer();
                         await pc.setLocalDescription(offer);
-                        const targetSignalRef = ref(db, `voice_channels/peerId}/${currentUser.uid}`);
+                        const targetSignalRef = ref(db, `voice_channels/${peerId}/${currentUser.uid}`);
                         await update(targetSignalRef, { offer: { sdp: offer.sdp, type: offer.type } });
                     } catch (e) {
                         console.error("Negotiation setup failed:", e);
