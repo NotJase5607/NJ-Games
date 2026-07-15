@@ -266,6 +266,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            min-width: 0; /* Prevents long usernames from busting layout */
         }
 
         .logout-btn {
@@ -274,6 +275,7 @@
             color: var(--text-muted);
             cursor: pointer;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
         .logout-btn:hover {
@@ -560,6 +562,7 @@
 </head>
 <body>
 
+    <!-- AUTHENTICATION LAYER -->
     <div class="auth-container" id="authScreen">
         <div class="auth-box">
             <h2 id="authTitle">Welcome to NJ Cord</h2>
@@ -570,6 +573,7 @@
         </div>
     </div>
 
+    <!-- ADD FRIEND MODAL -->
     <div class="modal" id="addFriendModal">
         <div class="modal-content">
             <h3>Add a Friend</h3>
@@ -582,13 +586,15 @@
         </div>
     </div>
 
+    <!-- CREATE GROUP MODAL -->
     <div class="modal" id="groupModal">
         <div class="modal-content">
             <h3>Create Group Chat</h3>
             <input type="text" id="groupNameInput" placeholder="Group Name...">
             <div style="font-size: 12px; color: var(--text-muted); font-weight: bold;">SELECT FRIENDS</div>
             <div class="friend-checkbox-list" id="groupModalFriendsList">
-                </div>
+                <!-- Checkboxes populated dynamically -->
+            </div>
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="closeGroupModalBtn">Cancel</button>
                 <button class="btn btn-confirm" id="createGroupSubmitBtn">Create</button>
@@ -596,6 +602,7 @@
         </div>
     </div>
 
+    <!-- GROUP SETTINGS MODAL (Owner Only) -->
     <div class="modal" id="groupSettingsModal">
         <div class="modal-content">
             <h3>Group Settings (Owner)</h3>
@@ -607,11 +614,13 @@
 
             <div style="font-size: 12px; color: var(--text-muted); font-weight: bold; margin-top: 8px;">ADD MEMBERS</div>
             <div class="friend-checkbox-list" id="settingsAddFriendsList">
-                </div>
+                <!-- Checkboxes of friends who aren't in yet -->
+            </div>
 
             <div style="font-size: 12px; color: var(--text-muted); font-weight: bold; margin-top: 8px;">REMOVE MEMBERS</div>
             <div class="friend-checkbox-list" id="settingsRemoveMembersList">
-                </div>
+                <!-- Current members with remove buttons -->
+            </div>
 
             <div class="modal-buttons">
                 <button class="btn btn-cancel" id="closeSettingsModalBtn">Close</button>
@@ -620,27 +629,33 @@
         </div>
     </div>
 
+    <!-- MAIN APP LAYOUT -->
     <div class="app-container">
         
+        <!-- 1. SERVER COLUMN -->
         <div class="server-sidebar">
             <div class="server-icon dm-logo active" id="homeBtn" title="Direct Messages">💬</div>
             <div class="separator"></div>
             <div class="server-icon nj-logo" id="njServerBtn" title="NJ Cord Server">NJ</div>
         </div>
 
+        <!-- 2. CHANNEL / DM COLUMN -->
         <div class="channel-sidebar">
             <div class="server-header" id="sidebarHeader">Direct Messages</div>
             <div class="channel-list" id="sidebarItems">
-                </div>
+                <!-- Items dynamically populated by Javascript -->
+            </div>
+            <!-- Logged In User Info Footer -->
             <div class="user-footer">
                 <div class="user-footer-info">
                     <div class="member-avatar" id="footerAvatar" style="background-color: var(--accent-purple);">U</div>
-                    <span id="footerUsername" style="font-weight: bold; font-size: 14px;">User</span>
+                    <span id="footerUsername" style="font-weight: bold; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Loading...</span>
                 </div>
                 <button class="logout-btn" id="logoutBtn">Logout</button>
             </div>
         </div>
 
+        <!-- 3. CHAT COLUMN -->
         <div class="chat-area">
             <div class="chat-header">
                 <div class="chat-header-left" id="chatHeader">
@@ -650,7 +665,8 @@
             </div>
             
             <div class="message-history" id="messageHistory">
-                </div>
+                <!-- Messages will load dynamically here -->
+            </div>
 
             <div class="chat-input-container">
                 <div class="chat-input-wrapper">
@@ -659,14 +675,17 @@
             </div>
         </div>
 
+        <!-- 4. MEMBER LIST COLUMN -->
         <div class="member-sidebar">
             <div class="member-group-title" id="memberListHeader">Friends</div>
             <div id="memberList">
-                </div>
+                <!-- Dynamically populated online users -->
+            </div>
         </div>
 
     </div>
 
+    <!-- FIREBASE SERVICES -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -806,29 +825,25 @@
                 currentUser = user;
                 authScreen.style.display = 'none';
 
-                get(child(ref(db), `users/${user.uid}`)).then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
+                // Look up user details in DB & immediately populate bottom footer
+                onValue(ref(db, `users/${user.uid}`), (snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData && userData.username) {
                         footerUsername.innerText = userData.username;
                         footerAvatar.innerText = userData.username.substring(0, 2).toUpperCase();
                     } else if (user.displayName) {
                         footerUsername.innerText = user.displayName;
                         footerAvatar.innerText = user.displayName.substring(0, 2).toUpperCase();
+                        // Sync missing DB node
+                        set(ref(db, `users/${user.uid}`), {
+                            username: user.displayName,
+                            uid: user.uid
+                        });
                     } else {
                         footerUsername.innerText = "User";
                         footerAvatar.innerText = "U";
                     }
-                }).catch(() => {
-                    footerUsername.innerText = user.displayName || "User";
-                    footerAvatar.innerText = (user.displayName || "U").substring(0, 2).toUpperCase();
                 });
-                
-                if (user.displayName) {
-                    set(ref(db, 'users/' + user.uid), {
-                        username: user.displayName,
-                        uid: user.uid
-                    });
-                }
 
                 homeBtn.click();
                 loadUsersList();
@@ -838,6 +853,8 @@
                 sidebarItems.innerHTML = "";
                 messageHistory.innerHTML = "";
                 memberList.innerHTML = "";
+                footerUsername.innerText = "Loading...";
+                footerAvatar.innerText = "U";
             }
         });
 
