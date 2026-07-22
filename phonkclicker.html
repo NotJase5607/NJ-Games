@@ -456,7 +456,7 @@
   
   <div id="admin-console">
       <span style="color:var(--accent-cyan); font-weight:bold; font-family:monospace;">ADMIN&gt;</span>
-      <input type="text" id="admin-cmd-input" placeholder='Type command e.g. /gm "msg", /givephonk user phonk, /setmoney user 1000'>
+      <input type="text" id="admin-cmd-input" placeholder='Type command e.g. /phonklevel user phonk 5, /setmoney user 1000'>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -1360,7 +1360,7 @@ checkDeviceAutoLogin();
             }
         });
 
-        // ADMIN COMMAND EXECUTOR (UPDATED WITH ALL NEW COMMANDS)
+        // ADMIN COMMAND EXECUTOR (UPDATED PHONKLEVEL COMMAND FORMAT)
         document.getElementById('admin-cmd-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const cmdText = e.target.value.trim();
@@ -1433,12 +1433,13 @@ checkDeviceAutoLogin();
                     e.target.value = '';
                     document.getElementById('admin-console').classList.remove('show');
                 }
-                // /phonklevel phonkname level
+                // UPDATED: /phonklevel username phonkname level
                 else if (cmdText.startsWith('/phonklevel ')) {
                     const parts = cmdText.split(' ');
-                    if (parts.length >= 3) {
+                    if (parts.length >= 4) {
+                        const targetUser = parts[1].toLowerCase();
                         const levelNum = parseInt(parts[parts.length - 1]);
-                        const rawPhonkQuery = parts.slice(1, parts.length - 1).join(' ').toLowerCase().trim();
+                        const rawPhonkQuery = parts.slice(2, parts.length - 1).join(' ').toLowerCase().trim();
 
                         if (isNaN(levelNum)) {
                             alert("Please specify a valid number for level!");
@@ -1463,11 +1464,31 @@ checkDeviceAutoLogin();
                             return;
                         }
 
-                        phonksDb[foundKey].level = levelNum;
-                        updateUI();
-                        renderInventory();
-                        saveGameProgress();
-                        alert(`Set ${phonksDb[foundKey].name} to Level ${levelNum}!`);
+                        if (targetUser === currentUsername.toLowerCase()) {
+                            phonksDb[foundKey].owned = true;
+                            phonksDb[foundKey].level = levelNum;
+                            updateUI();
+                            renderInventory();
+                            saveGameProgress();
+                            alert(`Set ${phonksDb[foundKey].name} level to ${levelNum} for yourself!`);
+                        } else {
+                            database.ref('users').once('value').then(snap => {
+                                let foundCode = null;
+                                snap.forEach(child => {
+                                    if (child.val().username && child.val().username.toLowerCase() === targetUser) {
+                                        foundCode = child.key;
+                                    }
+                                });
+                                if (foundCode) {
+                                    database.ref(`users/${foundCode}/game/inventory/${foundKey}`).set({ owned: true, level: levelNum });
+                                    alert(`Set ${phonksDb[foundKey].name} level to ${levelNum} for ${targetUser}!`);
+                                } else {
+                                    alert(`User ${targetUser} not found!`);
+                                }
+                            });
+                        }
+                    } else {
+                        alert("Usage: /phonklevel {username} {phonkname} {number}");
                     }
                     e.target.value = '';
                     document.getElementById('admin-console').classList.remove('show');
