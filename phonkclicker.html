@@ -1202,31 +1202,41 @@ checkDeviceAutoLogin();
             });
         }
 
-        function applyRemoteGameToLocal(remoteGame) {
-            if (!remoteGame) return;
+        // --- REALTIME ADMIN ACTION LISTENER FOR REMOTE PLAYERS ---
+        function initAdminQueueListener() {
+            if (!currentUsername) return;
+            const myQueueRef = database.ref(`admin_actions/${currentUsername.toLowerCase()}`);
+            myQueueRef.on('child_added', (snapshot) => {
+                const action = snapshot.val();
+                if (!action) return;
 
-            cash = remoteGame.cash || 0;
-            multiplier = remoteGame.multiplier || 1;
-            rebirths = remoteGame.rebirths || 0;
-            activeSkin = remoteGame.activeSkin || 'yara';
-
-            if (remoteGame.inventory) {
-                for (const key in remoteGame.inventory) {
-                    if (phonksDb[key]) {
-                        phonksDb[key].owned = !!remoteGame.inventory[key].owned;
-                        phonksDb[key].level = remoteGame.inventory[key].level || 1;
+                if (action.type === 'givephonk') {
+                    if (phonksDb[action.phonkKey]) {
+                        phonksDb[action.phonkKey].owned = true;
+                        phonksDb[action.phonkKey].level = (phonksDb[action.phonkKey].level || 0) + 1;
+                        triggerToastNotification(`⚡ Admin gave you ${phonksDb[action.phonkKey].name}!`, false, true);
                     }
+                } else if (action.type === 'phonklevel') {
+                    if (phonksDb[action.phonkKey]) {
+                        phonksDb[action.phonkKey].owned = true;
+                        phonksDb[action.phonkKey].level = action.level;
+                        triggerToastNotification(`⚡ Admin set ${phonksDb[action.phonkKey].name} to Level ${action.level}!`, false, true);
+                    }
+                } else if (action.type === 'setmoney') {
+                    cash = action.amount;
+                    triggerToastNotification(`⚡ Admin updated your cash to $${action.amount.toLocaleString()}!`, false, true);
+                } else if (action.type === 'setrebirth') {
+                    rebirths = action.amount;
+                    triggerToastNotification(`⚡ Admin updated your rebirths to ${action.amount.toLocaleString()}!`, false, true);
                 }
-            }
 
-            if (phonksDb[activeSkin] && !phonksDb[activeSkin].owned) {
-                activeSkin = 'yara';
-            }
+                updateUI();
+                renderInventory();
+                saveGameProgress();
 
-            mainImg.src = phonksDb[activeSkin].img;
-            updateUI();
-            renderInventory();
-            saveGameProgress();
+                // Remove processed action
+                snapshot.ref.remove();
+            });
         }
 
         // --- SESSION HANDLING & SAVE SYSTEMS ---
@@ -1243,6 +1253,7 @@ checkDeviceAutoLogin();
             loadGameProgress();
             syncAudioDeck();
             updateUI();
+            initAdminQueueListener();
 
             setTimeout(() => {
                 syncPlayerGameToFirebase();
@@ -1360,7 +1371,7 @@ checkDeviceAutoLogin();
             }
         });
 
-        // ADMIN COMMAND EXECUTOR (UPDATED PHONKLEVEL COMMAND FORMAT)
+        // ADMIN COMMAND EXECUTOR (UPDATED TO PUSH ACTIONS REALTIME TO OTHER PLAYERS)
         document.getElementById('admin-cmd-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const cmdText = e.target.value.trim();
@@ -1414,26 +1425,18 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Gave ${phonksDb[foundKey].name} to yourself!`);
                         } else {
-                            database.ref('users').once('value').then(snap => {
-                                let foundCode = null;
-                                snap.forEach(child => {
-                                    if (child.val().username && child.val().username.toLowerCase() === targetUser) {
-                                        foundCode = child.key;
-                                    }
-                                });
-                                if (foundCode) {
-                                    database.ref(`users/${foundCode}/game/inventory/${foundKey}`).set({ owned: true, level: 1 });
-                                    alert(`Successfully gave ${phonksDb[foundKey].name} to ${targetUser}!`);
-                                } else {
-                                    alert(`User ${targetUser} not found!`);
-                                }
+                            database.ref(`admin_actions/${targetUser}`).push({
+                                type: 'givephonk',
+                                phonkKey: foundKey,
+                                timestamp: Date.now()
                             });
+                            alert(`Sent command to give ${phonksDb[foundKey].name} to ${targetUser}!`);
                         }
                     }
                     e.target.value = '';
                     document.getElementById('admin-console').classList.remove('show');
                 }
-                // UPDATED: /phonklevel username phonkname level
+                // /phonklevel username phonkname level
                 else if (cmdText.startsWith('/phonklevel ')) {
                     const parts = cmdText.split(' ');
                     if (parts.length >= 4) {
@@ -1472,20 +1475,13 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Set ${phonksDb[foundKey].name} level to ${levelNum} for yourself!`);
                         } else {
-                            database.ref('users').once('value').then(snap => {
-                                let foundCode = null;
-                                snap.forEach(child => {
-                                    if (child.val().username && child.val().username.toLowerCase() === targetUser) {
-                                        foundCode = child.key;
-                                    }
-                                });
-                                if (foundCode) {
-                                    database.ref(`users/${foundCode}/game/inventory/${foundKey}`).set({ owned: true, level: levelNum });
-                                    alert(`Set ${phonksDb[foundKey].name} level to ${levelNum} for ${targetUser}!`);
-                                } else {
-                                    alert(`User ${targetUser} not found!`);
-                                }
+                            database.ref(`admin_actions/${targetUser}`).push({
+                                type: 'phonklevel',
+                                phonkKey: foundKey,
+                                level: levelNum,
+                                timestamp: Date.now()
                             });
+                            alert(`Sent command to set ${phonksDb[foundKey].name} level to ${levelNum} for ${targetUser}!`);
                         }
                     } else {
                         alert("Usage: /phonklevel {username} {phonkname} {number}");
@@ -1511,20 +1507,12 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Set your cash to $${amount.toLocaleString()}!`);
                         } else {
-                            database.ref('users').once('value').then(snap => {
-                                let foundCode = null;
-                                snap.forEach(child => {
-                                    if (child.val().username && child.val().username.toLowerCase() === targetUser) {
-                                        foundCode = child.key;
-                                    }
-                                });
-                                if (foundCode) {
-                                    database.ref(`users/${foundCode}/game/cash`).set(amount);
-                                    alert(`Set ${targetUser}'s cash to $${amount.toLocaleString()}!`);
-                                } else {
-                                    alert(`User ${targetUser} not found!`);
-                                }
+                            database.ref(`admin_actions/${targetUser}`).push({
+                                type: 'setmoney',
+                                amount: amount,
+                                timestamp: Date.now()
                             });
+                            alert(`Sent command to set ${targetUser}'s cash to $${amount.toLocaleString()}!`);
                         }
                     }
                     e.target.value = '';
@@ -1548,20 +1536,12 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Set your rebirths to ${amount.toLocaleString()}!`);
                         } else {
-                            database.ref('users').once('value').then(snap => {
-                                let foundCode = null;
-                                snap.forEach(child => {
-                                    if (child.val().username && child.val().username.toLowerCase() === targetUser) {
-                                        foundCode = child.key;
-                                    }
-                                });
-                                if (foundCode) {
-                                    database.ref(`users/${foundCode}/game/rebirths`).set(amount);
-                                    alert(`Set ${targetUser}'s rebirths to ${amount.toLocaleString()}!`);
-                                } else {
-                                    alert(`User ${targetUser} not found!`);
-                                }
+                            database.ref(`admin_actions/${targetUser}`).push({
+                                type: 'setrebirth',
+                                amount: amount,
+                                timestamp: Date.now()
                             });
+                            alert(`Sent command to set ${targetUser}'s rebirths to ${amount.toLocaleString()}!`);
                         }
                     }
                     e.target.value = '';
