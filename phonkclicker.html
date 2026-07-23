@@ -558,8 +558,8 @@
           <h3>🎉 LIVE EVENTS</h3>
           <button class="close-menu-btn" onclick="toggleMenu('menu-events')">&times;</button>
       </div>
-      <button class="action-btn" style="background:linear-gradient(45deg, #ffaa00, #ff5500); padding:14px;" onclick="triggerTacoRainEvent()">🌮 Rain Tacos</button>
-      <button class="action-btn" style="background:linear-gradient(45deg, #ff00ff, #00f0ff); padding:14px;" onclick="triggerDiscoEvent()">🪩 Disco (30 Seconds)</button>
+      <button class="action-btn" style="background:linear-gradient(45deg, #ffaa00, #ff5500); padding:14px;" onclick="broadcastEvent('tacorain')">🌮 Rain Tacos (GLOBAL)</button>
+      <button class="action-btn" style="background:linear-gradient(45deg, #ff00ff, #00f0ff); padding:14px;" onclick="broadcastEvent('disco')">🪩 Disco 30s (GLOBAL)</button>
   </div>
 
   <div id="admin-console">
@@ -1295,10 +1295,32 @@ checkDeviceAutoLogin();
             if (el) el.classList.toggle('show');
         }
 
+        // --- GLOBAL EVENT BROADCAST SYSTEM ---
+        function broadcastEvent(eventType) {
+            database.ref('global_events').push({
+                type: eventType,
+                host: currentUsername,
+                timestamp: Date.now()
+            });
+            toggleMenu('menu-events');
+        }
+
+        // GLOBAL LISTENERS FOR ALL PLAYERS
+        database.ref('global_events').limitToLast(1).on('child_added', (snap) => {
+            const event = snap.val();
+            if (!event || !event.timestamp || (Date.now() - event.timestamp > 10000)) return;
+
+            if (event.type === 'disco') {
+                triggerDiscoEvent();
+            } else if (event.type === 'tacorain') {
+                triggerTacoRainEvent();
+            }
+        });
+
         function triggerDiscoEvent() {
             const overlay = document.getElementById('disco-overlay');
             overlay.classList.add('active');
-            triggerToastNotification("🪩 DISCO EVENT ACTIVATED! (30 Seconds)", false, true);
+            triggerToastNotification("🪩 GLOBAL DISCO EVENT ACTIVATED! (30 Seconds)", false, true);
             setTimeout(() => {
                 overlay.classList.remove('active');
             }, 30000);
@@ -1309,7 +1331,7 @@ checkDeviceAutoLogin();
             previousSkinBeforeEvent = activeSkin;
             equipSkin('tacofunk');
 
-            triggerToastNotification("🌮 RAIN TACOS EVENT STARTED!", false, true);
+            triggerToastNotification("🌮 GLOBAL TACO RAIN EVENT STARTED!", false, true);
 
             const container = document.getElementById('taco-rain-container');
             if (tacoInterval) clearInterval(tacoInterval);
@@ -1325,12 +1347,11 @@ checkDeviceAutoLogin();
                 setTimeout(() => { taco.remove(); }, 4000);
             }, 120);
 
-            // Taco song plays via embed. Stop event after song length (~31s)
             setTimeout(() => {
                 clearInterval(tacoInterval);
                 container.innerHTML = '';
                 equipSkin(previousSkinBeforeEvent);
-                triggerToastNotification("🌮 Taco Rain Event finished!", false, true);
+                triggerToastNotification("🌮 Global Taco Rain finished!", false, true);
             }, 31000);
         }
       
