@@ -32,6 +32,7 @@
             height: 100vh;
             display: flex;
             overflow: hidden;
+            position: relative;
         }
 
         /* Username Login Overlay Screen */
@@ -102,6 +103,7 @@
             align-items: center;
             padding: 20px 0;
             gap: 20px;
+            z-index: 10;
         }
 
         .nav-btn {
@@ -185,6 +187,7 @@
             overflow: hidden;
             border: 4px solid var(--accent-purple);
             box-shadow: 0 0 25px var(--accent-purple);
+            z-index: 5;
         }
 
         .click-target img {
@@ -235,6 +238,7 @@
             display: none;
             flex-direction: column;
             padding: 15px;
+            z-index: 10;
         }
 
         .sidebar.active {
@@ -344,7 +348,7 @@
             border: 1px solid #ff4444;
         }
 
-        /* Popups */
+        /* Popups & Effects */
         .floating-text {
             position: absolute;
             color: var(--accent-green);
@@ -353,7 +357,7 @@
             pointer-events: none;
             animation: floatUp 0.6s ease-out forwards;
             text-shadow: 0 0 6px #000;
-            z-index: 10;
+            z-index: 100;
         }
 
         @keyframes floatUp {
@@ -377,7 +381,7 @@
             box-shadow: 0 0 40px var(--accent-gold);
             border-radius: 12px;
             padding: 25px;
-            z-index: 100;
+            z-index: 500;
             text-align: center;
             display: none;
             flex-direction: column;
@@ -388,6 +392,7 @@
         }
         .roll-modal.show { display: flex; transform: translate(-50%, -50%) scale(1); opacity: 1; }
         .roll-modal img { width: 140px; height: 140px; border-radius: 8px; border: 2px solid white; }
+        
         .notif-banner { 
             position: fixed; 
             top: -100px; 
@@ -448,15 +453,118 @@
             margin-top:-6px; 
             margin-bottom:4px;
         }
+
+        /* DISCO & TACO RAIN OVERLAYS */
+        #disco-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 50;
+            transition: opacity 0.5s ease;
+            mix-blend-mode: color-dodge;
+        }
+        #disco-overlay.active {
+            opacity: 0.55;
+            animation: discoBg 2s infinite linear;
+        }
+        @keyframes discoBg {
+            0% { background-color: #ff0000; }
+            20% { background-color: #ffff00; }
+            40% { background-color: #00ff00; }
+            60% { background-color: #00ffff; }
+            80% { background-color: #ff00ff; }
+            100% { background-color: #ff0000; }
+        }
+
+        #taco-rain-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 60;
+        }
+        .falling-taco {
+            position: absolute;
+            width: 65px;
+            height: 65px;
+            top: -80px;
+            animation: fallAnimation linear forwards;
+        }
+        @keyframes fallAnimation {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(115vh) rotate(360deg); opacity: 0.9; }
+        }
+
+        /* CUSTOM ADMIN POPUP MENUS */
+        .admin-popup-menu {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #11121d;
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 999999;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .admin-popup-menu.show { display: flex; }
+        .admin-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+        .admin-menu-header h3 { color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; }
+        .close-menu-btn { background: none; border: none; color: #ff4444; font-size: 1.4rem; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
   
+  <div id="disco-overlay"></div>
+  <div id="taco-rain-container"></div>
+
   <div id="notification-alert" class="notif-banner" onclick="closeNotification()">Notification Message</div>
   
+  <!-- COMMANDS MENU POPUP -->
+  <div id="menu-commands" class="admin-popup-menu">
+      <div class="admin-menu-header">
+          <h3>⚡ OWNER COMMANDS</h3>
+          <button class="close-menu-btn" onclick="toggleMenu('menu-commands')">&times;</button>
+      </div>
+      <div style="font-size:0.85rem; color:#ccc; display:flex; flex-direction:column; gap:8px; font-family:monospace;">
+          <div><b style="color:var(--accent-green);">/commands</b> - Show this list</div>
+          <div><b style="color:var(--accent-green);">/events</b> - Open live Events menu</div>
+          <div><b style="color:var(--accent-green);">/takephonk {user} {phonk}</b> - Strip phonk</div>
+          <div><b style="color:var(--accent-green);">/takeallphonks {user}</b> - Strip all phonks</div>
+          <div><b style="color:var(--accent-green);">/reset {user}</b> - Reset entire save progress</div>
+          <div><b style="color:var(--accent-green);">/givephonk {user} {phonk}</b> - Give phonk</div>
+          <div><b style="color:var(--accent-green);">/phonklevel {user} {phonk} {lvl}</b> - Set level</div>
+          <div><b style="color:var(--accent-green);">/setmoney {user} {amount}</b> - Set cash</div>
+          <div><b style="color:var(--accent-green);">/setrebirth {user} {amount}</b> - Set rebirths</div>
+          <div><b style="color:var(--accent-green);">/gm "message"</b> - Broadcast alert</div>
+      </div>
+  </div>
+
+  <!-- EVENTS MENU POPUP -->
+  <div id="menu-events" class="admin-popup-menu">
+      <div class="admin-menu-header">
+          <h3>🎉 LIVE EVENTS</h3>
+          <button class="close-menu-btn" onclick="toggleMenu('menu-events')">&times;</button>
+      </div>
+      <button class="action-btn" style="background:linear-gradient(45deg, #ffaa00, #ff5500); padding:14px;" onclick="triggerTacoRainEvent()">🌮 Rain Tacos</button>
+      <button class="action-btn" style="background:linear-gradient(45deg, #ff00ff, #00f0ff); padding:14px;" onclick="triggerDiscoEvent()">🪩 Disco (30 Seconds)</button>
+  </div>
+
   <div id="admin-console">
       <span style="color:var(--accent-cyan); font-weight:bold; font-family:monospace;">ADMIN&gt;</span>
-      <input type="text" id="admin-cmd-input" placeholder='Type command e.g. /phonklevel user phonk 5, /setmoney user 1000'>
+      <input type="text" id="admin-cmd-input" placeholder='Type command e.g. /events, /commands, /takephonk user yara'>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -1121,6 +1229,8 @@ checkDeviceAutoLogin();
         let multiplier = 1;
         let rebirths = 0;
         let activeSkin = 'yara';
+        let previousSkinBeforeEvent = 'yara';
+        let tacoInterval = null;
 
         let phonksDb = {
             yara: { name: "Yara Yara Phonk", videoId: "KK5uGdYGo80", img: "https://i.scdn.co/image/ab67616d00001e0297e6dfb873d548b382e6cb40", owned: true, baseValue: 1, level: 1 },
@@ -1155,7 +1265,10 @@ checkDeviceAutoLogin();
             cappuchina: { name: "Ballerina Cappuchina Funk", videoId: "UjjjtTiS5tE", img: "https://i.ytimg.com/vi/YclqZCjHuAc/maxresdefault.jpg", owned: false, baseValue: 5000000000000000, level: 1 },
             tungsahur: { name: "Tung Sahur Funk", videoId: "cxtx5lgqMSc", img: "https://i.ytimg.com/vi/FjdFlE_Cacs/maxresdefault.jpg", owned: false, baseValue: 25000000000000000, level: 1 },
             bombardino: { name: "Bombardino Crocodilo Funk", videoId: "IVEpoXSl0O8", img: "https://i.ytimg.com/vi/pQghULTRQIU/sddefault.jpg", owned: false, baseValue: 100000000000000000, level: 1 },
-            garama: { name: "Garama And Madundung Funk", videoId: "S3qQgosADFY", img: "https://i.ytimg.com/vi/S3qQgosADFY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBxKl7NeesLLeVOOyf_oiHBaj6Jwg", owned: false, baseValue: 1000000000000000000, level: 1 }
+            garama: { name: "Garama And Madundung Funk", videoId: "S3qQgosADFY", img: "https://i.ytimg.com/vi/S3qQgosADFY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBxKl7NeesLLeVOOyf_oiHBaj6Jwg", owned: false, baseValue: 1000000000000000000, level: 1 },
+
+            // TACO EVENT PHONK
+            tacofunk: { name: "Its Raining Tacos Funk", videoId: "4c9FT96un-c", img: "https://i.ytimg.com/vi/IzyoEBNtu4Q/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AHUBYAC0AWKAgwIABABGCAgaChyMA8=&rs=AOn4CLCe5hth_0RI6Szpnrim_wO_2us5BA", owned: false, baseValue: 750000000000, level: 1 }
         };
 
         const costs = { 
@@ -1176,6 +1289,50 @@ checkDeviceAutoLogin();
         const clickButton = document.getElementById('click-button');
         const mainImg = document.getElementById('main-clicker-img');
         const deckWrapper = document.getElementById('deck-wrapper');
+
+        function toggleMenu(menuId) {
+            const el = document.getElementById(menuId);
+            if (el) el.classList.toggle('show');
+        }
+
+        function triggerDiscoEvent() {
+            const overlay = document.getElementById('disco-overlay');
+            overlay.classList.add('active');
+            triggerToastNotification("🪩 DISCO EVENT ACTIVATED! (30 Seconds)", false, true);
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 30000);
+        }
+
+        function triggerTacoRainEvent() {
+            phonksDb.tacofunk.owned = true;
+            previousSkinBeforeEvent = activeSkin;
+            equipSkin('tacofunk');
+
+            triggerToastNotification("🌮 RAIN TACOS EVENT STARTED!", false, true);
+
+            const container = document.getElementById('taco-rain-container');
+            if (tacoInterval) clearInterval(tacoInterval);
+
+            tacoInterval = setInterval(() => {
+                const taco = document.createElement('img');
+                taco.src = 'https://i.ytimg.com/vi/IzyoEBNtu4Q/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AHUBYAC0AWKAgwIABABGCAgaChyMA8=&rs=AOn4CLCe5hth_0RI6Szpnrim_wO_2us5BA';
+                taco.className = 'falling-taco';
+                taco.style.left = Math.random() * 95 + 'vw';
+                taco.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(taco);
+
+                setTimeout(() => { taco.remove(); }, 4000);
+            }, 120);
+
+            // Taco song plays via embed. Stop event after song length (~31s)
+            setTimeout(() => {
+                clearInterval(tacoInterval);
+                container.innerHTML = '';
+                equipSkin(previousSkinBeforeEvent);
+                triggerToastNotification("🌮 Taco Rain Event finished!", false, true);
+            }, 31000);
+        }
       
         function buildInventoryState() {
             let inventoryState = {};
@@ -1216,6 +1373,26 @@ checkDeviceAutoLogin();
                         phonksDb[action.phonkKey].level = (phonksDb[action.phonkKey].level || 0) + 1;
                         triggerToastNotification(`⚡ Admin gave you ${phonksDb[action.phonkKey].name}!`, false, true);
                     }
+                } else if (action.type === 'takephonk') {
+                    if (phonksDb[action.phonkKey]) {
+                        phonksDb[action.phonkKey].owned = false;
+                        phonksDb[action.phonkKey].level = 1;
+                        if (activeSkin === action.phonkKey) equipSkin('yara');
+                        triggerToastNotification(`⚠️ Admin stripped your ${phonksDb[action.phonkKey].name}!`, false, true);
+                    }
+                } else if (action.type === 'takeallphonks') {
+                    for (const key in phonksDb) {
+                        if (key !== 'yara') phonksDb[key].owned = false;
+                    }
+                    equipSkin('yara');
+                    triggerToastNotification(`⚠️ Admin stripped ALL your Phonks!`, false, true);
+                } else if (action.type === 'reset') {
+                    cash = 0; rebirths = 0; multiplier = 1;
+                    for (const key in phonksDb) {
+                        if (key !== 'yara') phonksDb[key].owned = false;
+                    }
+                    equipSkin('yara');
+                    triggerToastNotification(`⚠️ Admin has completely RESET your account!`, false, true);
                 } else if (action.type === 'phonklevel') {
                     if (phonksDb[action.phonkKey]) {
                         phonksDb[action.phonkKey].owned = true;
@@ -1234,7 +1411,6 @@ checkDeviceAutoLogin();
                 renderInventory();
                 saveGameProgress();
 
-                // Remove processed action
                 snapshot.ref.remove();
             });
         }
@@ -1371,14 +1547,22 @@ checkDeviceAutoLogin();
             }
         });
 
-        // ADMIN COMMAND EXECUTOR (UPDATED TO PUSH ACTIONS REALTIME TO OTHER PLAYERS)
+        // ADMIN COMMAND EXECUTOR (POWERFUL COMMANDS INTEGRATED)
         document.getElementById('admin-cmd-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const cmdText = e.target.value.trim();
                 if (!cmdText) return;
 
+                // /commands
+                if (cmdText === '/commands') {
+                    toggleMenu('menu-commands');
+                }
+                // /events
+                else if (cmdText === '/events') {
+                    toggleMenu('menu-events');
+                }
                 // /gm "message"
-                if (cmdText.startsWith('/gm ')) {
+                else if (cmdText.startsWith('/gm ')) {
                     let msg = cmdText.substring(4).trim();
                     if (msg.startsWith('"') && msg.endsWith('"')) {
                         msg = msg.substring(1, msg.length - 1);
@@ -1388,10 +1572,78 @@ checkDeviceAutoLogin();
                         message: msg,
                         timestamp: Date.now()
                     });
-                    e.target.value = '';
-                    document.getElementById('admin-console').classList.remove('show');
                     triggerToastNotification("Global Announcement Sent!", false, true);
                 } 
+                // /takephonk username phonkname
+                else if (cmdText.startsWith('/takephonk ')) {
+                    const parts = cmdText.split(' ');
+                    if (parts.length >= 3) {
+                        const targetUser = parts[1].toLowerCase();
+                        const rawPhonkQuery = parts.slice(2).join(' ').toLowerCase().trim();
+
+                        let foundKey = null;
+                        for (const key in phonksDb) {
+                            const phonk = phonksDb[key];
+                            if (key.toLowerCase() === rawPhonkQuery || phonk.name.toLowerCase() === rawPhonkQuery || phonk.name.toLowerCase().replace(/\s+/g, '') === rawPhonkQuery.replace(/\s+/g, '')) {
+                                foundKey = key;
+                                break;
+                            }
+                        }
+
+                        if (!foundKey) {
+                            alert(`Phonk '${parts.slice(2).join(' ')}' does not exist!`);
+                            return;
+                        }
+
+                        if (targetUser === currentUsername.toLowerCase()) {
+                            phonksDb[foundKey].owned = false;
+                            phonksDb[foundKey].level = 1;
+                            if (activeSkin === foundKey) equipSkin('yara');
+                            updateUI();
+                            renderInventory();
+                            saveGameProgress();
+                            alert(`Stripped ${phonksDb[foundKey].name} from yourself!`);
+                        } else {
+                            database.ref(`admin_actions/${targetUser}`).push({ type: 'takephonk', phonkKey: foundKey, timestamp: Date.now() });
+                            alert(`Sent command to strip ${phonksDb[foundKey].name} from ${targetUser}!`);
+                        }
+                    }
+                }
+                // /takeallphonks username
+                else if (cmdText.startsWith('/takeallphonks ')) {
+                    const targetUser = cmdText.split(' ')[1].toLowerCase();
+                    if (targetUser === currentUsername.toLowerCase()) {
+                        for (const key in phonksDb) {
+                            if (key !== 'yara') phonksDb[key].owned = false;
+                        }
+                        equipSkin('yara');
+                        updateUI();
+                        renderInventory();
+                        saveGameProgress();
+                        alert(`Stripped ALL Phonks from yourself!`);
+                    } else {
+                        database.ref(`admin_actions/${targetUser}`).push({ type: 'takeallphonks', timestamp: Date.now() });
+                        alert(`Sent command to strip ALL Phonks from ${targetUser}!`);
+                    }
+                }
+                // /reset username
+                else if (cmdText.startsWith('/reset ')) {
+                    const targetUser = cmdText.split(' ')[1].toLowerCase();
+                    if (targetUser === currentUsername.toLowerCase()) {
+                        cash = 0; rebirths = 0; multiplier = 1;
+                        for (const key in phonksDb) {
+                            if (key !== 'yara') phonksDb[key].owned = false;
+                        }
+                        equipSkin('yara');
+                        updateUI();
+                        renderInventory();
+                        saveGameProgress();
+                        alert(`Completely RESET your progress!`);
+                    } else {
+                        database.ref(`admin_actions/${targetUser}`).push({ type: 'reset', timestamp: Date.now() });
+                        alert(`Sent command to RESET ${targetUser}'s progress!`);
+                    }
+                }
                 // /givephonk username phonkname
                 else if (cmdText.startsWith('/givephonk ')) {
                     const parts = cmdText.split(' ');
@@ -1402,11 +1654,7 @@ checkDeviceAutoLogin();
                         let foundKey = null;
                         for (const key in phonksDb) {
                             const phonk = phonksDb[key];
-                            if (
-                                key.toLowerCase() === rawPhonkQuery ||
-                                phonk.name.toLowerCase() === rawPhonkQuery ||
-                                phonk.name.toLowerCase().replace(/\s+/g, '') === rawPhonkQuery.replace(/\s+/g, '')
-                            ) {
+                            if (key.toLowerCase() === rawPhonkQuery || phonk.name.toLowerCase() === rawPhonkQuery || phonk.name.toLowerCase().replace(/\s+/g, '') === rawPhonkQuery.replace(/\s+/g, '')) {
                                 foundKey = key;
                                 break;
                             }
@@ -1425,16 +1673,10 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Gave ${phonksDb[foundKey].name} to yourself!`);
                         } else {
-                            database.ref(`admin_actions/${targetUser}`).push({
-                                type: 'givephonk',
-                                phonkKey: foundKey,
-                                timestamp: Date.now()
-                            });
+                            database.ref(`admin_actions/${targetUser}`).push({ type: 'givephonk', phonkKey: foundKey, timestamp: Date.now() });
                             alert(`Sent command to give ${phonksDb[foundKey].name} to ${targetUser}!`);
                         }
                     }
-                    e.target.value = '';
-                    document.getElementById('admin-console').classList.remove('show');
                 }
                 // /phonklevel username phonkname level
                 else if (cmdText.startsWith('/phonklevel ')) {
@@ -1452,11 +1694,7 @@ checkDeviceAutoLogin();
                         let foundKey = null;
                         for (const key in phonksDb) {
                             const phonk = phonksDb[key];
-                            if (
-                                key.toLowerCase() === rawPhonkQuery ||
-                                phonk.name.toLowerCase() === rawPhonkQuery ||
-                                phonk.name.toLowerCase().replace(/\s+/g, '') === rawPhonkQuery.replace(/\s+/g, '')
-                            ) {
+                            if (key.toLowerCase() === rawPhonkQuery || phonk.name.toLowerCase() === rawPhonkQuery || phonk.name.toLowerCase().replace(/\s+/g, '') === rawPhonkQuery.replace(/\s+/g, '')) {
                                 foundKey = key;
                                 break;
                             }
@@ -1475,19 +1713,10 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Set ${phonksDb[foundKey].name} level to ${levelNum} for yourself!`);
                         } else {
-                            database.ref(`admin_actions/${targetUser}`).push({
-                                type: 'phonklevel',
-                                phonkKey: foundKey,
-                                level: levelNum,
-                                timestamp: Date.now()
-                            });
+                            database.ref(`admin_actions/${targetUser}`).push({ type: 'phonklevel', phonkKey: foundKey, level: levelNum, timestamp: Date.now() });
                             alert(`Sent command to set ${phonksDb[foundKey].name} level to ${levelNum} for ${targetUser}!`);
                         }
-                    } else {
-                        alert("Usage: /phonklevel {username} {phonkname} {number}");
                     }
-                    e.target.value = '';
-                    document.getElementById('admin-console').classList.remove('show');
                 }
                 // /setmoney username amount
                 else if (cmdText.startsWith('/setmoney ')) {
@@ -1507,16 +1736,10 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Set your cash to $${amount.toLocaleString()}!`);
                         } else {
-                            database.ref(`admin_actions/${targetUser}`).push({
-                                type: 'setmoney',
-                                amount: amount,
-                                timestamp: Date.now()
-                            });
+                            database.ref(`admin_actions/${targetUser}`).push({ type: 'setmoney', amount: amount, timestamp: Date.now() });
                             alert(`Sent command to set ${targetUser}'s cash to $${amount.toLocaleString()}!`);
                         }
                     }
-                    e.target.value = '';
-                    document.getElementById('admin-console').classList.remove('show');
                 }
                 // /setrebirth username amount
                 else if (cmdText.startsWith('/setrebirth ')) {
@@ -1536,17 +1759,14 @@ checkDeviceAutoLogin();
                             saveGameProgress();
                             alert(`Set your rebirths to ${amount.toLocaleString()}!`);
                         } else {
-                            database.ref(`admin_actions/${targetUser}`).push({
-                                type: 'setrebirth',
-                                amount: amount,
-                                timestamp: Date.now()
-                            });
+                            database.ref(`admin_actions/${targetUser}`).push({ type: 'setrebirth', amount: amount, timestamp: Date.now() });
                             alert(`Sent command to set ${targetUser}'s rebirths to ${amount.toLocaleString()}!`);
                         }
                     }
-                    e.target.value = '';
-                    document.getElementById('admin-console').classList.remove('show');
                 }
+
+                e.target.value = '';
+                document.getElementById('admin-console').classList.remove('show');
             }
         });
 
