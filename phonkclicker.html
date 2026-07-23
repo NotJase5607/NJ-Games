@@ -1093,6 +1093,25 @@
                     </div>
                 </div>
 
+                <!-- MEME BLOCK -->
+                <div class="item-row" style="border-color: #00ffcc; background: linear-gradient(135deg, #04141a, #082a33);">
+                    <div class="item-info">
+                        <div class="item-name" style="color: #00ffcc; font-size:1.1rem; text-shadow:0 0 10px #00ffcc;">Meme Block</div>
+                        <div style="font-size:0.85rem; color:#aaa;">Drops Legendary Meme Funk Anthems</div>
+                    </div>
+                    <button class="action-btn" id="buy-meme-btn" onclick="buyLuckyBlock('meme')" style="background:linear-gradient(45deg, #00ffcc, #00aaff);">$1,000Q</button>
+                </div>
+                <div class="drop-box-container" style="border-color:#1a3a3a;">
+                    <div style="font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Possible Drops</div>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Gut Genug Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a1a00; color:var(--accent-gold);">50%</span></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Moewl Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#1a2a00; color:var(--accent-green);">25%</span></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Mrbeast Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#001a2a; color:var(--accent-blue);">10%</span></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">🎵 Noot Noot Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a002a; color:var(--accent-magenta);">5%</span></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.82rem; color:#ccc;">⭐ Nyan Cat Funk</span><span style="font-size:0.78rem; padding:2px 8px; border-radius:10px; background:#2a0000; color:var(--accent-red);">0.01%</span></div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1258,7 +1277,7 @@ checkDeviceAutoLogin();
             lastchance: { name: "Last Chance Funk", videoId: "7ENyxpnyVMw", img: "https://i.scdn.co/image/ab67616d0000b273a8681df8f85d6d2f3670615e", owned: false, baseValue: 8000000000000, level: 1 },
             safira: { name: "Montagem Safira", videoId: "Aj-2kcEez5E", img: "https://i.scdn.co/image/ab67616d00001e0211448ac76c22d603e329725d", owned: false, baseValue: 30000000000000, level: 1 },
             horizonte: { name: "Estilo Horizonte Diamante", videoId: "EoV_QmRt_Ww", img: "https://i1.sndcdn.com/artworks-7L5KW0m4ycjA-0-t500x500.jpg", owned: false, baseValue: 100000000000000, level: 1 },
-            rave: { name: "Rave", videoId: "PTZgxW_3LIQ", img: "https://i.ytimg.com/vi/PTZgxW_3LIQ/maxresdefault.jpg", owned: false, baseValue: 500000000000000, level: 1 },
+            rave: { name: "Noite De Esmeralda", videoId: "oYVBpwhieAQ", img: "https://i.scdn.co/image/ab67616d0000b2736009e7d6ffb7f970c992bab2", owned: false, baseValue: 500000000000000, level: 1 },
             
             // BRAINROT BLOCK PHONKS
             patapim: { name: "Brr Brr Patapim Funk", videoId: "7C1g028A0DA", img: "https://i.ytimg.com/vi/7C1g028A0DA/mqdefault.jpg", owned: false, baseValue: 1000000000000000, level: 1 },
@@ -1268,14 +1287,22 @@ checkDeviceAutoLogin();
             garama: { name: "Garama And Madundung Funk", videoId: "S3qQgosADFY", img: "https://i.ytimg.com/vi/S3qQgosADFY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBxKl7NeesLLeVOOyf_oiHBaj6Jwg", owned: false, baseValue: 1000000000000000000, level: 1 },
 
             // TACO EVENT PHONK
-            tacofunk: { name: "Its Raining Tacos Funk", videoId: "4c9FT96un-c", img: "https://i.ytimg.com/vi/IzyoEBNtu4Q/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AHUBYAC0AWKAgwIABABGCAgaChyMA8=&rs=AOn4CLCe5hth_0RI6Szpnrim_wO_2us5BA", owned: false, baseValue: 750000000000, level: 1 }
+            tacofunk: { name: "Its Raining Tacos Funk", videoId: "4c9FT96un-c", img: "https://i.ytimg.com/vi/IzyoEBNtu4Q/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AHUBYAC0AWKAgwIABABGCAgaChyMA8=&rs=AOn4CLCe5hth_0RI6Szpnrim_wO_2us5BA", owned: false, baseValue: 750000000000, level: 1 },
+
+            // MEME BLOCK PHONKS
+            gutgenug: { name: "Gut Genug Funk", videoId: "uBCCW907nYA", img: "https://i.scdn.co/image/ab67616d00001e025fa166d781ff00f57c9b7ae8", owned: false, baseValue: 5000000000000000000, level: 1 },
+            moewl: { name: "Moewl Funk", videoId: "ku1lnZoQDoI", img: "https://i.ytimg.com/vi/ku1lnZoQDoI/maxresdefault.jpg", owned: false, baseValue: 25000000000000000000, level: 1 },
+            mrbeast: { name: "Mrbeast Funk", videoId: "uGGQGoht6ic", img: "https://i.ytimg.com/vi/uGGQGoht6ic/hqdefault.jpg", owned: false, baseValue: 100000000000000000000, level: 1 },
+            nootnoot: { name: "Noot Noot Funk", videoId: "AFNEvKmW9f8", img: "https://i.scdn.co/image/ab67616d0000b273367c67a0b6409571e5f88a89", owned: false, baseValue: 500000000000000000000, level: 1 },
+            nyancat: { name: "Nyan Cat Funk", videoId: "5FlN6IKyLgE", img: "https://cdn-images.dzcdn.net/images/cover/3f91c2b306a90eae6c5ae66641419ff1/0x1900-000000-80-0-0.jpg", owned: false, baseValue: 10000000000000000000000, level: 1 }
         };
 
         const costs = { 
             bass: 50, eq: 400, xlr: 2500, monitors: 15000, sub: 85000, mixer: 450000, cowbell: 3200000, vinyl: 25000000, label: 180000000, fl: 1200000000, mastering: 8500000000, residency: 60000000000, festival: 450000000000, tour: 3200000000000, orchestra: 25000000000000, satellite: 180000000000000, megastructure: 1400000000000000, matrix: 10000000000000000, dimension: 75000000000000000,
             distortion: 500000000000000000, syndicate: 3200000000000000000, compressor: 22000000000000000000, neonradio: 150000000000000000000, plasmasynth: 950000000000000000000, subreverb: 6500000000000000000000, megaamp: 45000000000000000000000, cloudcowbell: 320000000000000000000000, soundwave: 2100000000000000000000000, tectonic: 15000000000000000000000000, orbitalvinyl: 110000000000000000000000000, flarelimiter: 850000000000000000000000000, nebulamod: 6200000000000000000000000000, galaxyengine: 45000000000000000000000000000, supercluster: 320000000000000000000000000000, cowbelllaser: 2400000000000000000000000000000, pitchshifter: 18000000000000000000000000000000, chronoloop: 140000000000000000000000000000000, dmsub: 1100000000000000000000000000000000, singularitydeck: 85000000000000000000000000000000000, driftstation: 650000000000000000000000000000000000, multiverseanthem: 4900000000000000000000000000000000000, infiniteseq: 38000000000000000000000000000000000000, aetherdrive: 290000000000000000000000000000000000000, rhythmcontinuum: 2200000000000000000000000000000000000000, omnipresentscape: 18000000000000000000000000000000000000000, supervocal: 140000000000000000000000000000000000000000, driftgenesis: 1100000000000000000000000000000000000000000, omegamatrix: 95000000000000000000000000000000000000000000, reality808: 850000000000000000000000000000000000000000000,
             rebirth: 10000, luckyBlock: 25000, betaBlock: 50000, gammaBlock: 75000, deltaBlock: 100000, epsilonBlock: 150000,
-            brainrotBlock: 500000000000000000000
+            brainrotBlock: 500000000000000000000,
+            memeBlock: 1000000000000000000000
         };
 
         function getClickValue() {
@@ -1924,6 +1951,7 @@ checkDeviceAutoLogin();
             if (boxType === 'delta') cost = costs.deltaBlock;
             if (boxType === 'epsilon') cost = costs.epsilonBlock;
             if (boxType === 'brainrot') cost = costs.brainrotBlock;
+            if (boxType === 'meme') cost = costs.memeBlock;
 
             if (cash >= cost) {
                 cash -= cost;
@@ -1971,6 +1999,13 @@ checkDeviceAutoLogin();
                     else if (rand < 95) rolled = 'tungsahur';
                     else if (rand < 99.99) rolled = 'bombardino';
                     else rolled = 'garama';
+                } else if (boxType === 'meme') {
+                    const rand = Math.random() * 100;
+                    if (rand < 50) rolled = 'gutgenug';
+                    else if (rand < 75) rolled = 'moewl';
+                    else if (rand < 85) rolled = 'mrbeast';
+                    else if (rand < 99.99) rolled = 'nootnoot';
+                    else rolled = 'nyancat';
                 }
                 
                 const isNew = !phonksDb[rolled].owned;
@@ -2071,6 +2106,12 @@ checkDeviceAutoLogin();
             document.getElementById('buy-delta-btn').disabled = cash < costs.deltaBlock;
             document.getElementById('buy-epsilon-btn').disabled = cash < costs.epsilonBlock;
             document.getElementById('buy-brainrot-btn').disabled = cash < costs.brainrotBlock;
+
+            const memeBtn = document.getElementById('buy-meme-btn');
+            if (memeBtn) {
+                memeBtn.innerText = `$${costs.memeBlock.toLocaleString()}`;
+                memeBtn.disabled = cash < costs.memeBlock;
+            }
         }
 
         function createFloatingText(x, y, text) {
