@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NJ Games - Most Played</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #111;
+    color: white;
+    padding: 40px 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 45px;
+}
+
+#leaderboard {
+    max-width: 900px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.game {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1d1d1d;
+    padding: 20px;
+    border-radius: 15px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.game:hover {
+    background: #252525;
+}
+
+.rank {
+    font-size: 28px;
+    font-weight: bold;
+    width: 60px;
+    color: #888;
+}
+
+.rank-1 { color: #ffd700; font-size: 32px; } /* Gold */
+.rank-2 { color: #c0c0c0; font-size: 30px; } /* Silver */
+.rank-3 { color: #cd7f32; font-size: 28px; } /* Bronze */
+
+.name {
+    flex: 1;
+    font-size: 24px;
+}
+
+.action-zone {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.plays {
+    color: #00ff88;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.playButton {
+    background: #00ff88;
+    color: #111;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.playButton:hover {
+    background: #00cc6c;
+    transform: scale(1.05);
+}
+</style>
+</head>
+
+<body>
+
+<h1>Most Played Games</h1>
+
+<div id="leaderboard">Loading games...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+    getFirestore,
+    doc,
+    collection,
+    setDoc,
+    increment,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDxOJdNCaeDZWU25oIa_cXhKThTCTCjweM",
+  authDomain: "nj-most-played.firebaseapp.com",
+  projectId: "nj-most-played",
+  storageBucket: "nj-most-played.firebasestorage.app",
+  messagingSenderId: "995851249395",
+  appId: "1:995851249395:web:82c599c978a5be9a17f986"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const USERNAME = "NotJase5607";
+const REPO = "NJ-Games";
+
+let gamesList = [];
+let firestoreData = {};
+
+async function playGame(id) {
+    try {
+        const ref = doc(db, "games", id);
+        await setDoc(ref, { plays: increment(1) }, { merge: true });
+    } catch (err) {
+        console.error("Firestore update error:", err);
+    } finally {
+        window.open(`https://notjase5607.github.io/NJ-Games/${id}.html`, '_blank');
+    }
+}
+
+function renderLeaderboard() {
+    const container = document.getElementById("leaderboard");
+    container.innerHTML = "";
+
+    // Merge GitHub files with live Firestore play counts
+    const sortedGames = gamesList.map(game => ({
+        ...game,
+        plays: firestoreData[game.id] || 0
+    })).sort((a, b) => b.plays - a.plays);
+
+    sortedGames.forEach((game, index) => {
+        const rank = index + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : "";
+
+        const card = document.createElement("div");
+        card.className = "game";
+
+        card.innerHTML = `
+            <div class="rank ${rankClass}">#${rank}</div>
+            <h2 class="name">${game.title}</h2>
+            <div class="action-zone">
+                <span class="plays">Plays: ${game.plays.toLocaleString()}</span>
+                <button class="playButton" data-id="${game.id}">
+                    ▶ Play
+                </button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+
+    // Re-bind play handlers
+    document.querySelectorAll(".playButton").forEach(btn => {
+        btn.addEventListener("click", () => {
+            playGame(btn.dataset.id);
+        });
+    });
+}
+
+// 1. Fetch all game files from GitHub repo
+fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents`)
+  .then(r => r.json())
+  .then(files => {
+      if (!Array.isArray(files)) return;
+
+      gamesList = files
+          .filter(file => file.name.endsWith(".html") && file.name.toLowerCase() !== "index.html")
+          .map(file => {
+              const id = file.name.replace(".html", "");
+              const title = id.replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+              return { id, title };
+          });
+
+      // 2. Listen to real-time changes across the entire 'games' collection
+      onSnapshot(collection(db, "games"), (snapshot) => {
+          snapshot.forEach(docSnap => {
+              firestoreData[docSnap.id] = docSnap.data().plays || 0;
+          });
+          renderLeaderboard();
+      });
+  })
+  .catch(err => console.error("GitHub Fetch Error:", err));
+</script>
+
+</body>
+</html>
