@@ -1,13 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>NJ Games</title>
+<title>My Games</title>
 <style>
 body{
     background:#111;
     color:white;
     font-family:Arial;
     text-align:center;
+}
+
+#auth-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#auth-box {
+    background: #222;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+input[type="email"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #333;
+    color: white;
+    width: 250px;
+    margin-right: 10px;
+}
+
+#main-content {
+    display: none;
+}
+
+#error-msg {
+    color: #ff6b6b;
+    margin-top: 15px;
+    font-size: 14px;
 }
 
 #games{
@@ -29,47 +71,92 @@ button{
     padding:10px 20px;
     font-size:16px;
     cursor:pointer;
+    border-radius: 6px;
+    border: none;
+    background: #4e5d6c;
+    color: white;
+}
+
+button:hover {
+    background: #5c6f84;
 }
 </style>
 </head>
 <body>
 
-<h1>NJ Games</h1>
+<!-- Login Screen -->
+<div id="auth-screen">
+    <div id="auth-box">
+        <h2>🔒 Enter Your Email to Access</h2>
+        <input type="email" id="email-input" placeholder="Enter your email...">
+        <button onclick="checkEmail()">Enter</button>
+        <div id="error-msg"></div>
+    </div>
+</div>
 
-<div id="games"></div>
+<!-- Main Game Hub (Hidden initially) -->
+<div id="main-content">
+    <h1>🎮 My Games</h1>
+    <div id="games"></div>
+</div>
 
 <script>
-const USERNAME = "NotJase5607";
-const REPO = "NJ-Games";
+// ALLOWED EMAILS LIST:
+const allowedEmails = [
+    "s300067953@ddsbstudent.ca",
+    "s300068467@ddsbstudent.ca",
+    "s300068479@ddsbstudent.ca",
+    "s300068482@ddsbstudent.ca",
+    "s300073726@ddsbstudent.ca"
+];
 
-fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents`)
-.then(r => r.json())
-.then(files => {
-    const games = document.getElementById("games");
+function checkEmail() {
+    const inputVal = document.getElementById("email-input").value.trim().toLowerCase();
+    const errorDiv = document.getElementById("error-msg");
 
-    files.forEach(file => {
-        if (
-            file.name.endsWith(".html") &&
-            file.name.toLowerCase() !== "index.html"
-        ) {
-            const card = document.createElement("div");
-            card.className = "game";
+    if (allowedEmails.includes(inputVal)) {
+        // Hide auth screen and show main content
+        document.getElementById("auth-screen").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+        loadGames();
+    } else {
+        errorDiv.textContent = "Access denied. That email is not allowed.";
+    }
+}
 
-            const gameName = file.name
-                .replace(".html","")
-                .replace(/[-_]/g," ");
+function loadGames() {
+    const USERNAME = "NotJase5607";
+    const REPO = "NJ-Games";
 
-            card.innerHTML = `
-                <h2>${gameName}</h2>
-                <button onclick="location.href='${file.name}'">
-                    Play
-                </button>
-            `;
+    fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents`)
+    .then(r => r.json())
+    .then(files => {
+        const games = document.getElementById("games");
 
-            games.appendChild(card);
-        }
+        files.forEach(file => {
+            if (
+                file.name.endsWith(".html") &&
+                file.name.toLowerCase() !== "index.html"
+            ) {
+                const card = document.createElement("div");
+                card.className = "game";
+
+                const gameName = file.name
+                    .replace(".html","")
+                    .replace(/[-_]/g," ");
+
+                card.innerHTML = `
+                    <h2>${gameName}</h2>
+                    <button onclick="location.href='${file.name}'">
+                        Play
+                    </button>
+                `;
+
+                games.appendChild(card);
+            }
+        });
     });
-});
+}
 </script>
 
 </body>
